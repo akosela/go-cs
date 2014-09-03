@@ -1,0 +1,135 @@
+.\" Copyright (c) 2014 Andy Kosela.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"   notice, this list of conditions and the following disclaimer in the
+.\"   documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.Dd August 14, 2014
+.Dt CS 1
+.Os
+.Sh NAME
+.Nm cs
+.Nd concurrent ssh client
+.Sh SYNOPSIS
+.Nm cs
+.Bk -words
+.Op Fl cdfqrs
+.Op Fl h Ar hosts_file
+.Op Fl i Ar identity_file
+.Op Fl l Ar login_name
+.Op Fl o Ar output_file
+.Op Fl P Ar port
+.Op Fl p Ar path
+.Op Fl t Ar timeout
+.Brq Ar command | file
+.Sm off
+.Oo
+.Op Ar user No @
+.Ar host
+.Oc
+.Sm on
+.Ar ...
+.Sh DESCRIPTION
+.Nm
+is a program for concurrently executing ssh(1)/scp(1) on a number of
+hosts.
+It is intended to automate running remote commands or
+copying files between hosts on a network.
+Public key authentication is used for establishing passwordless
+connection.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl c
+Remote file copy mode.
+.It Fl d
+Remote download mode.
+.It Fl f
+Runs script file on the remote host.
+.It Fl h
+Reads hosts from the given
+.Ar hosts_file .
+Lines in the
+.Ar hosts_file
+can include commented lines beginning with a
+.Sq Li #
+and there can only be one host per line.
+.It Fl i
+Selects a file from which the identity (private key) for public key
+authentication is read.
+The default is
+.Ar ~/.ssh/id_rsa .
+.It Fl l
+Specifies the user to log in as on the remote machine.
+This also may be specified on a per-host basis on the command line.
+.It Fl o
+Saves standard output and standard error to a file.
+.It Fl P
+Port to connect to on the remote host.
+.It Fl p
+Specifies remote or local path for files in a remote copy or download
+mode.
+.It Fl q
+Quiet mode.
+Supresses verbose standard output from remote servers.
+This mode reports success or failure only.
+.It Fl r
+Recursively copy entire directories.
+It follows symbolic links encountered in the tree traversal.
+.It Fl s
+Sorts output by lines.
+.It Fl t
+Specifies the timeout (in seconds) used when connecting to the SSH
+server.
+The default value is 5 seconds.
+.El
+.Sh AUTHENTICATION
+The default method for authentication is a public key authentication
+which serves its purpose when dealing with multiple hosts.
+You can read more about public key authentication in
+.Xr ssh 1 .
+.Sh EXIT STATUS
+.Ex -std cs
+.Sh EXAMPLES
+Run commands on hosts foo and bar:
+.Pp
+.Dl $ cs 'uptime; uname -a' foo bar
+.Pp
+Run a command on multiple hosts specified in a file:
+.Pp
+.Dl $ cs -h hosts_file uptime
+.Pp
+Run a script on multiple hosts:
+.Pp
+.Dl $ cs -f script.sh foo{1..100}
+.Pp
+Copy file to multiple hosts using specified remote path:
+.Pp
+.Dl $ cs -h hosts_file -p foo/bar file
+.Pp
+Download recursively files from /foo/bar from multiple hosts to a
+specified local path:
+.Pp
+.Dl $ cs -d -r -h hosts_file -p /tmp /foo/bar/\e*
+.Sh SEE ALSO
+.Xr scp 1 ,
+.Xr ssh 1 ,
+.Xr ssh_config 5
+.Sh AUTHORS
+.An Andy Kosela Aq akosela@andykosela.com
