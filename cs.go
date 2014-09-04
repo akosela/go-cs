@@ -70,7 +70,6 @@ func run(command, hostname, id, login, out, path, port, timeout string,
 	} else if *download && *recursive {
 		cmd = exec.Command("scp", "-r", "-i", id, "-P", port,
 			"-o", tout, hostname+":"+command, path)
-		fmt.Println(cmd)
 	} else if *download {
 		cmd = exec.Command("scp", "-i", id, "-P", port, "-o",
 			tout, hostname+":"+command, path)
