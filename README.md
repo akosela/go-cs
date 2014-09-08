@@ -23,21 +23,27 @@ DESCRIPTION
 
      -f      Runs script file on the remote host.
 
-     -h      Reads hosts from the given hosts_file.  Lines in the hosts_file
-             can include commented lines beginning with a `#' and there can
-             only be one host per line.
+     -h hosts_file
+             Reads hostnames from the given hosts_file.  Lines in the
+             hosts_file can include commented lines beginning with a `#' and
+             only one host per line is allowed.
 
-     -i      Selects a file from which the identity (private key) for public
+     -i identity_file
+             Selects a file from which the identity (private key) for public
              key authentication is read.  The default is ~/.ssh/id_rsa.
 
-     -l      Specifies the user to log in as on the remote machine.  This also
+     -l login_name
+             Specifies the user to log in as on the remote machine.  This also
              may be specified on a per-host basis on the command line.
 
-     -o      Saves standard output and standard error to a file.
+     -o output_file
+             Saves standard output and standard error to a file.
 
-     -P      Port to connect to on the remote host.
+     -P port
+             Port to connect to on the remote host.
 
-     -p      Specifies remote or local path for files in a remote copy or
+     -p path
+             Specifies remote or local path for files in a remote copy or
              download mode.
 
      -q      Quiet mode.  Supresses verbose standard output from remote
@@ -48,7 +54,8 @@ DESCRIPTION
 
      -s      Sorts output by lines.
 
-     -t      Specifies the timeout (in seconds) used when connecting to the
+     -t timeout
+             Specifies the timeout (in seconds) used when connecting to the
              SSH server.  The default value is 5 seconds.
 
 AUTHENTICATION
@@ -74,7 +81,7 @@ EXAMPLES
 
      Copy file to multiple hosts using specified remote path:
 
-           $ cs -h hosts_file -p foo/bar file
+           $ cs -c -h hosts_file -p foo/bar file
 
      Download recursively files from /foo/bar from multiple hosts to a speci-
      fied local path:
@@ -87,5 +94,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                    August 14, 2014                   FreeBSD 10.0
+FreeBSD 10.0                   September 8, 2014                  FreeBSD 10.0
 ```
