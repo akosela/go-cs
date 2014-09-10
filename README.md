@@ -1,3 +1,54 @@
+## go-cs
+
+cs is a program for concurrently executing ssh(1)/scp(1) on a number of
+hosts.  It is intended to automate running remote commands or copying
+files between hosts on a network.  Public key authentication is used for
+establishing passwordless connection.
+
+## Install
+
+#### Go get
+
+```
+$ go get github.com/akosela/go-cs
+```
+
+#### FreeBSD
+
+```
+# cd /usr/ports/net/go-cs
+# make install clean
+```
+
+#### Linux (rpm)
+
+```
+# curl -sL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1-1.x86_64.rpm
+# rpm -ivh go-cs-0.1-1.x86_64.rpm
+```
+
+#### Linux
+
+```
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1.linux.amd64.tar.gz
+$ tar xvf go-cs-0.1.linux.amd64.tar.gz
+$ cd go-cs-0.1.linux.amd64
+$ gzip cs.1
+# cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
+```
+
+#### Darwin
+
+```
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1.darwin.amd64.tar.gz
+$ tar xvf go-cs-0.1.darwin.amd64.tar.gz
+$ cd go-cs-0.1.darwin.amd64
+$ gzip cs.1
+# cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
+```
+
+## Man page
+
 ```
 CS(1)                   FreeBSD General Commands Manual                  CS(1)
 
