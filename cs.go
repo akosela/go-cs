@@ -3,6 +3,10 @@
 // license that can be found in the LICENSE file.
 
 // Concurrent ssh client.
+// cs is a program for concurrently executing ssh(1)/scp(1) on a number
+// of hosts.  It is intended to automate running remote commands or
+// copying files between hosts on a network.  Public key authentication
+// is used for establishing passwordless connection.
 package main
 
 import (
