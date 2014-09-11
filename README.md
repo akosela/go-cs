@@ -23,7 +23,7 @@ $ go get github.com/akosela/go-cs
 #### Linux (rpm)
 
 ```
-$ curl -sL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1-1.x86_64.rpm
 # rpm -ivh go-cs-0.1-1.x86_64.rpm
 ```
 
