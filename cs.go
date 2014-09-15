@@ -162,10 +162,7 @@ func main() {
 		select {
 		case c := <-output:
 			err = 0
-			if strings.Contains(c, "ssh:") ||
-				strings.Contains(c, "timed out") ||
-				strings.Contains(c, "ERROR") ||
-				strings.Contains(c, "WARNING") {
+			if !strings.Contains(c, ":\n") {
 				e++
 				err = 1
 			}
