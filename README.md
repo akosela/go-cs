@@ -10,7 +10,7 @@ establishing passwordless connection.
 #### Go get
 
 ```
-$ go get github.com/akosela/go-cs
+$ go get github.com/akosela/go-cs/cs
 ```
 
 #### FreeBSD
