@@ -57,8 +57,8 @@ func readFile(file *os.File) []string {
 	return s
 }
 
-func run(command, hostname, id, login, out, path, port, timeout string,
-	copy, download, recursive, quiet *bool, f *os.File) string {
+func run(command, hostname, id, login, path, port, timeout string, copy,
+	download, recursive *bool, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
 	tout := "ConnectTimeout=" + timeout
@@ -152,8 +152,8 @@ func main() {
 	for _, hostname := range hosts {
 		go func(hostname string) {
 			output <- run(argv[0], hostname, *id, *login,
-				*out, *path, *port, *timeout, copy,
-				download, recursive, quiet, f)
+				*path, *port, *timeout, copy, download,
+				recursive, f)
 		}(hostname)
 	}
 
