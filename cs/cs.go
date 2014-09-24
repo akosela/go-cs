@@ -64,24 +64,24 @@ func run(command, hostname, id, login, out, path, port, timeout string,
 	tout := "ConnectTimeout=" + timeout
 	var cmd *exec.Cmd
 	if login != "" {
-		cmd = exec.Command("ssh", "-i", id, "-l", login, "-p",
-			port, "-o", tout, hostname, command)
+		cmd = exec.Command("/usr/bin/ssh", "-i", id, "-l",
+			login, "-p", port, "-o", tout, hostname, command)
 	} else if *copy && *recursive {
-		cmd = exec.Command("scp", "-r", "-i", id, "-P", port,
-			"-o", tout, command, hostname+":"+path)
+		cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
+			port, "-o", tout, command, hostname+":"+path)
 	} else if *copy {
-		cmd = exec.Command("scp", "-i", id, "-P", port, "-o",
-			tout, command, hostname+":"+path)
+		cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+			"-o", tout, command, hostname+":"+path)
 	} else if *download && *recursive {
-		cmd = exec.Command("scp", "-r", "-i", id, "-P", port,
-			"-o", tout, hostname+":"+command, path)
+		cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
+			port, "-o", tout, hostname+":"+command, path)
 	} else if *download {
-		cmd = exec.Command("scp", "-i", id, "-P", port, "-o",
-			tout, hostname+":"+command, path)
+		cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+			"-o", tout, hostname+":"+command, path)
 		fmt.Println(cmd)
 	} else {
-		cmd = exec.Command("ssh", "-i", id, "-p", port, "-o",
-			tout, hostname, command)
+		cmd = exec.Command("/usr/bin/ssh", "-i", id, "-p", port,
+			"-o", tout, hostname, command)
 	}
 
 	buf, err := cmd.CombinedOutput()
