@@ -64,30 +64,55 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 	strict := "StrictHostKeyChecking=no"
 	tout := "ConnectTimeout=" + timeout
 	var cmd *exec.Cmd
-	if login != "" {
-		cmd = exec.Command("/usr/bin/ssh", "-i", id, "-l",
-			login, "-p", port, "-o", strict, "-o", tout,
-			hostname, command)
-	} else if *copy && *recursive {
-		cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-			port, "-o", strict, "-o", tout, command,
-			hostname+":"+path)
+	if *copy && *recursive {
+		if login != "" {
+			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
+				port, "-o", strict, "-o", tout, command, login+
+				"@"+hostname+":"+path)
+		} else {
+			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
+				port, "-o", strict, "-o", tout, command,
+				hostname+":"+path)
+		}
 	} else if *copy {
-		cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
-			"-o", strict, "-o", tout, command, hostname+
-			":"+path)
+		if login != "" {
+			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+				"-o", strict, "-o", tout, command, login+"@"+
+				hostname+":"+path)
+		} else {
+			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+				"-o", strict, "-o", tout, command, hostname+":"+
+				path)
+		}
 	} else if *download && *recursive {
-		cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-			port, "-o", strict, "-o", tout, hostname+":"+
-			command, path)
+		if login != "" {
+			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
+				port, "-o", strict, "-o", tout, login+"@"+
+				hostname+":"+command, path)
+		} else {
+			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
+				port, "-o", strict, "-o", tout, hostname+":"+
+				command, path)
+		}
 	} else if *download {
-		cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
-			"-o", strict, "-o", tout, hostname+":"+command,
-			path)
-		fmt.Println(cmd)
+		if login != "" {
+			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+				"-o", strict, "-o", tout, login+"@"+hostname+
+				":"+command, path)
+		} else {
+			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+				"-o", strict, "-o", tout, hostname+":"+command,
+				path)
+		}
 	} else {
-		cmd = exec.Command("/usr/bin/ssh", "-i", id, "-p", port,
-			"-o", strict, "-o", tout, hostname, command)
+		if login != "" {
+			cmd = exec.Command("/usr/bin/ssh", "-i", id, "-l",
+				login, "-p", port, "-o", strict, "-o", tout,
+				hostname, command)
+		} else {
+			cmd = exec.Command("/usr/bin/ssh", "-i", id, "-p", port,
+				"-o", strict, "-o", tout, hostname, command)
+		}
 	}
 
 	buf, err := cmd.CombinedOutput()
@@ -157,9 +182,8 @@ func main() {
 	output := make(chan string, 10)
 	for _, hostname := range hosts {
 		go func(hostname string) {
-			output <- run(argv[0], hostname, *id, *login,
-				*path, *port, *timeout, copy, download,
-				recursive, f)
+			output <- run(argv[0], hostname, *id, *login, *path,
+				*port, *timeout, copy, download, recursive, f)
 		}(hostname)
 	}
 
@@ -179,8 +203,7 @@ func main() {
 					}
 					split := strings.Split(c, ":")
 					if err == 1 {
-						mk2[i] = split[0] +
-							"\t[ERROR]\n"
+						mk2[i] = split[0] +"\t[ERROR]\n"
 						continue
 					}
 					mk2[i] = split[0] + "\t[OK]\n"
