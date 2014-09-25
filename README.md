@@ -147,5 +147,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                   September 8, 2014                  FreeBSD 10.0
+FreeBSD 10.0                  September 25, 2014                  FreeBSD 10.0
 ```
