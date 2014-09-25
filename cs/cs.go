@@ -63,6 +63,7 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 	hostname = strings.Trim(hostname, "\n")
 	strict := "StrictHostKeyChecking=no"
 	tout := "ConnectTimeout=" + timeout
+
 	var cmd *exec.Cmd
 	if *copy && *recursive {
 		if login != "" {
@@ -125,7 +126,7 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-cdfqrs] [-h hosts_file] [-i identity_file] [-l login_name]
+`usage: cs [-cdfqrsv] [-h hosts_file] [-i identity_file] [-l login_name]
 	  [-o output_file] [-P port] [-p path] [-t timeout] {command | file}
 	  [[user@]host] ...`)
 		os.Exit(1)
@@ -145,8 +146,14 @@ func main() {
 	recursive := flag.Bool("r", false, "Recursive")
 	sorted := flag.Bool("s", false, "Sort")
 	timeout := flag.String("t", "5", "Timeout")
+	version := flag.Bool("v", false, "Version")
 	flag.Parse()
 	argv := flag.Args()
+
+	if *version {
+		fmt.Println("cs v0.2")
+		os.Exit(1)
+	}
 
 	if len(argv) < 1 {
 		flag.Usage()

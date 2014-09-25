@@ -56,7 +56,7 @@ NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-cdfqrs] [-h hosts_file] [-i identity_file] [-l login_name]
+     cs [-cdfqrsv] [-h hosts_file] [-i identity_file] [-l login_name]
         [-o output_file] [-P port] [-p path] [-t timeout] {command | file}
         [[user@]host] ...
 
@@ -108,6 +108,8 @@ DESCRIPTION
      -t timeout
              Specifies the timeout (in seconds) used when connecting to the
              SSH server.  The default value is 5 seconds.
+
+     -v      Displays version.
 
 AUTHENTICATION
      The default method for authentication is a public key authentication
