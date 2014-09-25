@@ -61,27 +61,33 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 	download, recursive *bool, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
+	strict := "StrictHostKeyChecking=no"
 	tout := "ConnectTimeout=" + timeout
 	var cmd *exec.Cmd
 	if login != "" {
 		cmd = exec.Command("/usr/bin/ssh", "-i", id, "-l",
-			login, "-p", port, "-o", tout, hostname, command)
+			login, "-p", port, "-o", strict, "-o", tout,
+			hostname, command)
 	} else if *copy && *recursive {
 		cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-			port, "-o", tout, command, hostname+":"+path)
+			port, "-o", strict, "-o", tout, command,
+			hostname+":"+path)
 	} else if *copy {
 		cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
-			"-o", tout, command, hostname+":"+path)
+			"-o", strict, "-o", tout, command, hostname+
+			":"+path)
 	} else if *download && *recursive {
 		cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-			port, "-o", tout, hostname+":"+command, path)
+			port, "-o", strict, "-o", tout, hostname+":"+
+			command, path)
 	} else if *download {
 		cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
-			"-o", tout, hostname+":"+command, path)
+			"-o", strict, "-o", tout, hostname+":"+command,
+			path)
 		fmt.Println(cmd)
 	} else {
 		cmd = exec.Command("/usr/bin/ssh", "-i", id, "-p", port,
-			"-o", tout, hostname, command)
+			"-o", strict, "-o", tout, hostname, command)
 	}
 
 	buf, err := cmd.CombinedOutput()
