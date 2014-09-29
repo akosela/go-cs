@@ -1,3 +1,14 @@
+go-cs v0.2						   Sept 29, 2014
+
+  * Bugfix: fix bug in error routine.
+  * Bugfix: clean run() function.
+  * Bugfix: fix bug with login option.
+  * Change: rename cs.go -> cs/cs.go.
+  * Feature: add godoc comments.
+  * Feature: automatically add host key to known_hosts file.
+  * Feature: add '-v' option to display version.
+  * Security: securely call ssh(1) by hardcoding its path.
+
 go-cs v0.1 					    	    Sept 8, 2014
 
-- The first public version.
+  * The first public version.
