@@ -23,16 +23,16 @@ $ go get github.com/akosela/go-cs/cs
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1-1.x86_64.rpm
-# rpm -ivh go-cs-0.1-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2-1.x86_64.rpm
+# rpm -ivh go-cs-0.2-1.x86_64.rpm
 ```
 
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1.linux.amd64.tar.gz
-$ tar xvf go-cs-0.1.linux.amd64.tar.gz
-$ cd go-cs-0.1.linux.amd64
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2.linux.amd64.tar.gz
+$ tar xvf go-cs-0.2.linux.amd64.tar.gz
+$ cd go-cs-0.2.linux.amd64
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
 ```
@@ -40,9 +40,9 @@ $ gzip cs.1
 #### Darwin
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.1/go-cs-0.1.darwin.amd64.tar.gz
-$ tar xvf go-cs-0.1.darwin.amd64.tar.gz
-$ cd go-cs-0.1.darwin.amd64
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2.darwin.amd64.tar.gz
+$ tar xvf go-cs-0.2.darwin.amd64.tar.gz
+$ cd go-cs-0.2.darwin.amd64
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
 ```
