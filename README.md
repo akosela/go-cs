@@ -32,7 +32,7 @@ $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2-1.x
 ```
 $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2.linux.amd64.tar.gz
 $ tar xvf go-cs-0.2.linux.amd64.tar.gz
-$ cd go-cs-0.2.linux.amd64
+$ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
 ```
@@ -42,7 +42,7 @@ $ gzip cs.1
 ```
 $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2.darwin.amd64.tar.gz
 $ tar xvf go-cs-0.2.darwin.amd64.tar.gz
-$ cd go-cs-0.2.darwin.amd64
+$ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
 ```
