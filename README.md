@@ -15,6 +15,14 @@ $ go get github.com/akosela/go-cs/cs
 
 #### FreeBSD
 
+Package
+
+```
+# pkg install go-cs
+```
+
+Port
+
 ```
 # cd /usr/ports/net/go-cs
 # make install clean
@@ -23,25 +31,25 @@ $ go get github.com/akosela/go-cs/cs
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2-1.x86_64.rpm
-# rpm -ivh go-cs-0.2-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.3/go-cs-0.3-1.x86_64.rpm
+# rpm -ivh go-cs-0.3-1.x86_64.rpm
 ```
 
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2.linux.amd64.tar.gz
-$ tar xvf go-cs-0.2.linux.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.3/go-cs-0.3.linux.amd64.tar.gz
+$ tar xvf go-cs-0.3.linux.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
 ```
 
-#### Darwin
+#### OS X
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.2/go-cs-0.2.darwin.amd64.tar.gz
-$ tar xvf go-cs-0.2.darwin.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.3/go-cs-0.3.darwin.amd64.tar.gz
+$ tar xvf go-cs-0.3.darwin.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
@@ -56,7 +64,7 @@ NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-cdfqrsv] [-h hosts_file] [-i identity_file] [-l login_name]
+     cs [-cdfqrsVv1] [-h hosts_file] [-i identity_file] [-l login_name]
         [-o output_file] [-P port] [-p path] [-t timeout] {command | file}
         [[user@]host] ...
 
@@ -72,7 +80,7 @@ DESCRIPTION
 
      -d      Remote download mode.
 
-     -f      Runs script file on the remote host.
+     -f      Runs shell script on the remote host.
 
      -h hosts_file
              Reads hostnames from the given hosts_file.  Lines in the
@@ -109,7 +117,14 @@ DESCRIPTION
              Specifies the timeout (in seconds) used when connecting to the
              SSH server.  The default value is 5 seconds.
 
-     -v      Displays version.
+     -V      Displays the version number and exit.
+
+     -v      Verbose mode.  Causes cs to print debugging messages from ssh(1)
+             about its progress.  This is helpful in debugging connection,
+             authentication, and configuration problems.  Multiple -v options
+             increase the verbosity.  The maximum is 3.
+
+     -1      One line mode, useful for sorting output later.
 
 AUTHENTICATION
      The default method for authentication is a public key authentication
@@ -128,7 +143,7 @@ EXAMPLES
 
            $ cs -h hosts_file uptime
 
-     Run a script on multiple hosts:
+     Run a shell script on multiple hosts:
 
            $ cs -f script.sh foo{1..100}
 
@@ -141,11 +156,15 @@ EXAMPLES
 
            $ cs -d -r -h hosts_file -p /tmp /foo/bar/\*
 
+     Run a command on multiple hosts and sort the output:
+
+           $ cs -1 -h hosts_file 'free -m | grep Swap' | sort -rnk4 | head
+
 SEE ALSO
      scp(1), ssh(1), ssh_config(5)
 
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                  September 25, 2014                  FreeBSD 10.0
+FreeBSD 10.0                   December 30, 2014                  FreeBSD 10.0
 ```

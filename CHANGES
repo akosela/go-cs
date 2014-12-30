@@ -1,3 +1,10 @@
+go-cs v0.3						    Dec 30, 2014
+
+  * Change: rename '-v' to '-V'.
+  * Feature: add '-v' option to display verbose mode.
+  * Feature: add '-1' option to display one line mode.  It is especially
+    helpful for sorting output later.
+
 go-cs v0.2						   Sept 29, 2014
 
   * Bugfix: fix bug in error routine.

@@ -20,7 +20,7 @@
 .\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
-.Dd September 25, 2014
+.Dd December 30, 2014
 .Dt CS 1
 .Os
 .Sh NAME
@@ -29,7 +29,7 @@
 .Sh SYNOPSIS
 .Nm cs
 .Bk -words
-.Op Fl cdfqrsv
+.Op Fl cdfqrsVv1
 .Op Fl h Ar hosts_file
 .Op Fl i Ar identity_file
 .Op Fl l Ar login_name
@@ -61,7 +61,7 @@ Remote file copy mode.
 .It Fl d
 Remote download mode.
 .It Fl f
-Runs script file on the remote host.
+Runs shell script on the remote host.
 .It Fl h Ar hosts_file
 Reads hostnames from the given
 .Ar hosts_file .
@@ -98,8 +98,21 @@ Sorts output by lines.
 Specifies the timeout (in seconds) used when connecting to the SSH
 server.
 The default value is 5 seconds.
+.It Fl V
+Displays the version number and exit.
 .It Fl v
-Displays version.
+Verbose mode.
+Causes
+.Nm
+to print debugging messages from ssh(1) about its progress.
+This is helpful in debugging connection, authentication, and
+configuration problems.
+Multiple
+.Fl v
+options increase the verbosity.
+The maximum is 3.
+.It Fl 1
+One line mode, useful for sorting output later.
 .El
 .Sh AUTHENTICATION
 The default method for authentication is a public key authentication
@@ -117,7 +130,7 @@ Run a command on multiple hosts specified in a file:
 .Pp
 .Dl $ cs -h hosts_file uptime
 .Pp
-Run a script on multiple hosts:
+Run a shell script on multiple hosts:
 .Pp
 .Dl $ cs -f script.sh foo{1..100}
 .Pp
@@ -129,6 +142,10 @@ Download recursively files from /foo/bar from multiple hosts to a
 specified local path:
 .Pp
 .Dl $ cs -d -r -h hosts_file -p /tmp /foo/bar/\e*
+.Pp
+Run a command on multiple hosts and sort the output:
+.Pp
+.Dl $ cs -1 -h hosts_file 'free -m | grep Swap' | sort -rnk4 | head
 .Sh SEE ALSO
 .Xr scp 1 ,
 .Xr ssh 1 ,

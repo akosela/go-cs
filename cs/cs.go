@@ -20,7 +20,11 @@ import (
 	"time"
 )
 
-const timeFmt = "02-Jan-2006 15:04:05"
+const (
+	scp     = "/usr/bin/scp"
+	ssh     = "/usr/bin/ssh"
+	timeFmt = "02-Jan-2006 15:04:05"
+)
 
 func createFile(path string) *os.File {
 	file, err := os.OpenFile(path,
@@ -58,61 +62,68 @@ func readFile(file *os.File) []string {
 }
 
 func run(command, hostname, id, login, path, port, timeout string, copy,
-	download, recursive *bool, f *os.File) string {
+	download, one, recursive, verbose1, verbose2, verbose3 *bool,
+	f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
 	strict := "StrictHostKeyChecking=no"
 	tout := "ConnectTimeout=" + timeout
+	flag := "-"
+	if *verbose1 {
+		flag = "-v"
+	} else if *verbose2 {
+		flag = "-vv"
+	} else if *verbose3 {
+		flag = "-vvv"
+	}
 
 	var cmd *exec.Cmd
 	if *copy && *recursive {
 		if login != "" {
-			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-				port, "-o", strict, "-o", tout, command, login+
-				"@"+hostname+":"+path)
-		} else {
-			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-				port, "-o", strict, "-o", tout, command,
-				hostname+":"+path)
-		}
-	} else if *copy {
-		if login != "" {
-			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, command, login+"@"+
 				hostname+":"+path)
 		} else {
-			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, command, hostname+":"+
 				path)
 		}
+	} else if *copy {
+		if login != "" {
+			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
+				strict, "-o", tout, command, login+"@"+hostname+
+				":"+path)
+		} else {
+			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
+				strict, "-o", tout, command, hostname+":"+path)
+		}
 	} else if *download && *recursive {
 		if login != "" {
-			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-				port, "-o", strict, "-o", tout, login+"@"+
-				hostname+":"+command, path)
-		} else {
-			cmd = exec.Command("/usr/bin/scp", "-r", "-i", id, "-P",
-				port, "-o", strict, "-o", tout, hostname+":"+
-				command, path)
-		}
-	} else if *download {
-		if login != "" {
-			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, login+"@"+hostname+
 				":"+command, path)
 		} else {
-			cmd = exec.Command("/usr/bin/scp", "-i", id, "-P", port,
+			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, hostname+":"+command,
 				path)
 		}
+	} else if *download {
+		if login != "" {
+			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
+				strict, "-o", tout, login+"@"+hostname+":"+
+				command, path)
+		} else {
+			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
+				strict, "-o", tout, hostname+":"+command, path)
+		}
 	} else {
 		if login != "" {
-			cmd = exec.Command("/usr/bin/ssh", "-i", id, "-l",
-				login, "-p", port, "-o", strict, "-o", tout,
-				hostname, command)
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, "-o", strict, "-o", tout, hostname,
+				command)
 		} else {
-			cmd = exec.Command("/usr/bin/ssh", "-i", id, "-p", port,
-				"-o", strict, "-o", tout, hostname, command)
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port, "-o",
+				strict, "-o", tout, hostname, command)
 		}
 	}
 
@@ -120,13 +131,17 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 	if err != nil {
 		return hostname + ": " + string(buf)
 	}
-	return hostname + ":\n" + string(buf)
+	if *one {
+		return hostname + ": " + string(buf)
+	} else {
+		return hostname + ":\n" + string(buf)
+	}
 }
 
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-cdfqrsv] [-h hosts_file] [-i identity_file] [-l login_name]
+`usage: cs [-cdfqrsVv1] [-h hosts_file] [-i identity_file] [-l login_name]
 	  [-o output_file] [-P port] [-p path] [-t timeout] {command | file}
 	  [[user@]host] ...`)
 		os.Exit(1)
@@ -139,6 +154,7 @@ func main() {
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
 		"Identity file")
 	login := flag.String("l", "", "Login name")
+	one := flag.Bool("1", false, "One line")
 	out := flag.String("o", "", "Output filename")
 	port := flag.String("P", "22", "SSH port")
 	path := flag.String("p", ".", "Path")
@@ -146,12 +162,15 @@ func main() {
 	recursive := flag.Bool("r", false, "Recursive")
 	sorted := flag.Bool("s", false, "Sort")
 	timeout := flag.String("t", "5", "Timeout")
-	version := flag.Bool("v", false, "Version")
+	version := flag.Bool("V", false, "Version")
+	verbose1 := flag.Bool("v", false, "Verbose mode 1")
+	verbose2 := flag.Bool("vv", false, "Verbose mode 2")
+	verbose3 := flag.Bool("vvv", false, "Verbose mode 3")
 	flag.Parse()
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs v0.2")
+		fmt.Println("cs v0.3")
 		os.Exit(1)
 	}
 
@@ -190,7 +209,8 @@ func main() {
 	for _, hostname := range hosts {
 		go func(hostname string) {
 			output <- run(argv[0], hostname, *id, *login, *path,
-				*port, *timeout, copy, download, recursive, f)
+				*port, *timeout, copy, download, one, recursive,
+				verbose1, verbose2, verbose3, f)
 		}(hostname)
 	}
 
@@ -254,7 +274,9 @@ func main() {
 		}
 	}
 
-	fmt.Printf("hosts = %d, errors = %d\n", len(hosts), e)
+	if !*one {
+		fmt.Printf("hosts = %d, errors = %d\n", len(hosts), e)
+	}
 	if *out != "" {
 		now := time.Now()
 		nowStr := now.Format(timeFmt)
