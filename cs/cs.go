@@ -3,10 +3,10 @@
 // license that can be found in the LICENSE file.
 
 // Concurrent ssh client.
-// cs is a program for concurrently executing ssh(1)/scp(1) on a number
-// of hosts.  It is intended to automate running remote commands or
-// copying files between hosts on a network.  Public key authentication
-// is used for establishing passwordless connection.
+// cs is a program for concurrently executing ssh(1) or scp(1) on a
+// number of hosts.  It is intended to automate running remote commands
+// or copying files between hosts on a network.  Public key
+// authentication is used for establishing passwordless connection.
 package main
 
 import (
@@ -61,8 +61,41 @@ func readFile(file *os.File) []string {
 	return s
 }
 
-func run(command, hostname, id, login, path, port, timeout string, copy,
-	download, one, recursive, verbose1, verbose2, verbose3 *bool,
+func checkArgs(copy, download, file, hostsfile string,
+	argv []string) (command string, hosts []string) {
+	if file != "" || copy != "" || download != "" {
+		if hostsfile == "" {
+			if len(argv) < 1 {
+				flag.Usage()
+			}
+			hosts = argv[0:]
+		} else {
+			f := openFile(hostsfile)
+			hosts = readFile(f)
+		}
+		if file != "" {
+			f := openFile(file)
+			command = strings.Join(readFile(f), "")
+		}
+	} else {
+		if hostsfile == "" {
+			if len(argv) < 2 {
+				flag.Usage()
+			}
+			command = argv[0]
+			hosts = argv[1:]
+		} else {
+			f := openFile(hostsfile)
+			hosts = readFile(f)
+			command = argv[0]
+		}
+	}
+
+	return command, hosts
+}
+
+func run(command, hostname, id, login, path, port, timeout, copy,
+	download string, one, recursive, verbose1, verbose2, verbose3 *bool,
 	f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
@@ -78,43 +111,43 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 	}
 
 	var cmd *exec.Cmd
-	if *copy && *recursive {
+	if copy != "" && *recursive {
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, command, login+"@"+
-				hostname+":"+path)
+				"-o", strict, "-o", tout, copy, login+"@"+
+					hostname+":"+path)
 		} else {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, command, hostname+":"+
-				path)
+				"-o", strict, "-o", tout, copy, hostname+":"+
+					path)
 		}
-	} else if *copy {
+	} else if copy != "" {
 		if login != "" {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, command, login+"@"+hostname+
-				":"+path)
+				strict, "-o", tout, copy, login+"@"+hostname+
+					":"+path)
 		} else {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, command, hostname+":"+path)
+				strict, "-o", tout, copy, hostname+":"+path)
 		}
-	} else if *download && *recursive {
+	} else if download != "" && *recursive {
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, login+"@"+hostname+
-				":"+command, path)
+					":"+download, path)
 		} else {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, hostname+":"+command,
+				"-o", strict, "-o", tout, hostname+":"+download,
 				path)
 		}
-	} else if *download {
+	} else if download != "" {
 		if login != "" {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
 				strict, "-o", tout, login+"@"+hostname+":"+
-				command, path)
+					download, path)
 		} else {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, hostname+":"+command, path)
+				strict, "-o", tout, hostname+":"+download, path)
 		}
 	} else {
 		if login != "" {
@@ -141,15 +174,15 @@ func run(command, hostname, id, login, path, port, timeout string, copy,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-cdfqrsVv1] [-h hosts_file] [-i identity_file] [-l login_name]
-	  [-o output_file] [-P port] [-p path] [-t timeout] {command | file}
-	  [[user@]host] ...`)
+`usage: cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+	  [-i identity_file] [-l login_name] [-o output_file] [-P port]
+	  [-p path] [-t timeout] [command] [[user@]host] ...`)
 		os.Exit(1)
 	}
 
-	copy := flag.Bool("c", false, "Copy")
-	download := flag.Bool("d", false, "Download")
-	file := flag.Bool("f", false, "Script file")
+	copy := flag.String("c", "", "Copy")
+	download := flag.String("d", "", "Download")
+	file := flag.String("f", "", "Script file")
 	hostsfile := flag.String("h", "", "Hosts file")
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
 		"Identity file")
@@ -174,9 +207,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if len(argv) < 1 {
-		flag.Usage()
-	}
+	command, hosts := checkArgs(*copy, *download, *file, *hostsfile, argv)
 
 	var f *os.File
 	if *out != "" {
@@ -184,17 +215,6 @@ func main() {
 		nowStr := now.Format(timeFmt)
 		f = createFile(*out)
 		f.WriteString("------ START: " + nowStr + " ------\n")
-	}
-
-	hosts := argv[1:]
-	if *hostsfile != "" {
-		f := openFile(*hostsfile)
-		hosts = readFile(f)
-	}
-
-	if *file {
-		f := openFile(argv[0])
-		argv[0] = strings.Join(readFile(f), "")
 	}
 
 	var mk, mk2 []string
@@ -208,9 +228,9 @@ func main() {
 	output := make(chan string, 10)
 	for _, hostname := range hosts {
 		go func(hostname string) {
-			output <- run(argv[0], hostname, *id, *login, *path,
-				*port, *timeout, copy, download, one, recursive,
-				verbose1, verbose2, verbose3, f)
+			output <- run(command, hostname, *id, *login, *path,
+				*port, *timeout, *copy, *download, one,
+				recursive, verbose1, verbose2, verbose3, f)
 		}(hostname)
 	}
 

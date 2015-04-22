@@ -20,7 +20,7 @@
 .\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
-.Dd December 30, 2014
+.Dd April 22, 2015
 .Dt CS 1
 .Os
 .Sh NAME
@@ -29,7 +29,10 @@
 .Sh SYNOPSIS
 .Nm cs
 .Bk -words
-.Op Fl cdfqrsVv1
+.Op Fl qrsVv1
+.Op Fl c Ar file
+.Op Fl d Ar file
+.Op Fl f Ar script.sh
 .Op Fl h Ar hosts_file
 .Op Fl i Ar identity_file
 .Op Fl l Ar login_name
@@ -37,7 +40,7 @@
 .Op Fl P Ar port
 .Op Fl p Ar path
 .Op Fl t Ar timeout
-.Brq Ar command | file
+.Op Ar command
 .Sm off
 .Oo
 .Op Ar user No @
@@ -47,20 +50,24 @@
 .Ar ...
 .Sh DESCRIPTION
 .Nm
-is a program for concurrently executing ssh(1)/scp(1) on a number of
+is a program for concurrently executing ssh(1) or scp(1) on a number of
 hosts.
-It is intended to automate running remote commands or
-copying files between hosts on a network.
+It is intended to automate running remote commands or copying files
+between hosts on a network.
 Public key authentication is used for establishing passwordless
 connection.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl c
-Remote file copy mode.
-.It Fl d
-Remote download mode.
-.It Fl f
+.It Fl c Ar file
+Copy
+.Ar file
+to the remote machine.
+.It Fl d Ar file
+Download
+.Ar file
+from the remote machine.
+.It Fl f Ar script.sh
 Runs shell script on the remote host.
 .It Fl h Ar hosts_file
 Reads hostnames from the given
@@ -87,7 +94,7 @@ Specifies remote or local path for files in a remote copy or download
 mode.
 .It Fl q
 Quiet mode.
-Supresses verbose standard output from remote servers.
+Supresses verbose standard output from remote machines.
 This mode reports success or failure only.
 .It Fl r
 Recursively copy entire directories.
@@ -122,11 +129,11 @@ You can read more about public key authentication in
 .Sh EXIT STATUS
 .Ex -std cs
 .Sh EXAMPLES
-Run commands on hosts foo and bar:
+Run a series of commands on hosts foo and bar:
 .Pp
 .Dl $ cs 'uptime; uname -a' foo bar
 .Pp
-Run a command on multiple hosts specified in a file:
+Run a command on multiple hosts specified in a hosts_file:
 .Pp
 .Dl $ cs -h hosts_file uptime
 .Pp
@@ -136,12 +143,12 @@ Run a shell script on multiple hosts:
 .Pp
 Copy file to multiple hosts using specified remote path:
 .Pp
-.Dl $ cs -c -h hosts_file -p foo/bar file
+.Dl $ cs -c file -h hosts_file -p /foo/bar
 .Pp
 Download recursively files from /foo/bar from multiple hosts to a
 specified local path:
 .Pp
-.Dl $ cs -d -r -h hosts_file -p /tmp /foo/bar/\e*
+.Dl $ cs -r -d /foo/bar/\e* -h hosts_file -p /tmp
 .Pp
 Run a command on multiple hosts and sort the output:
 .Pp
