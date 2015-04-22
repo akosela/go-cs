@@ -154,6 +154,10 @@ EXAMPLES
 
            $ cs -c file -h hosts_file -p /foo/bar
 
+     Download file from hosts foo and bar to a current working directory:
+
+           $ cs -d file foo bar
+
      Download recursively files from /foo/bar from multiple hosts to a speci-
      fied local path:
 
