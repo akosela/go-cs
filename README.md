@@ -64,23 +64,26 @@ NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-cdfqrsVv1] [-h hosts_file] [-i identity_file] [-l login_name]
-        [-o output_file] [-P port] [-p path] [-t timeout] {command | file}
-        [[user@]host] ...
+     cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+        [-i identity_file] [-l login_name] [-o output_file] [-P port]
+        [-p path] [-t timeout] [command] [[user@]host] ...
 
 DESCRIPTION
-     cs is a program for concurrently executing ssh(1)/scp(1) on a number of
-     hosts.  It is intended to automate running remote commands or copying
+     cs is a program for concurrently executing ssh(1) or scp(1) on a number
+     of hosts.  It is intended to automate running remote commands or copying
      files between hosts on a network.  Public key authentication is used for
      establishing passwordless connection.
 
      The options are as follows:
 
-     -c      Remote file copy mode.
+     -c file
+             Copy file to the remote machine.
 
-     -d      Remote download mode.
+     -d file
+             Download file from the remote machine.
 
-     -f      Runs shell script on the remote host.
+     -f script.sh
+             Runs shell script on the remote host.
 
      -h hosts_file
              Reads hostnames from the given hosts_file.  Lines in the
@@ -106,7 +109,7 @@ DESCRIPTION
              download mode.
 
      -q      Quiet mode.  Supresses verbose standard output from remote
-             servers.  This mode reports success or failure only.
+             machines.  This mode reports success or failure only.
 
      -r      Recursively copy entire directories.  It follows symbolic links
              encountered in the tree traversal.
@@ -135,11 +138,11 @@ EXIT STATUS
      The cs utility exits 0 on success, and >0 if an error occurs.
 
 EXAMPLES
-     Run commands on hosts foo and bar:
+     Run a series of commands on hosts foo and bar:
 
            $ cs 'uptime; uname -a' foo bar
 
-     Run a command on multiple hosts specified in a file:
+     Run a command on multiple hosts specified in a hosts_file:
 
            $ cs -h hosts_file uptime
 
@@ -149,12 +152,12 @@ EXAMPLES
 
      Copy file to multiple hosts using specified remote path:
 
-           $ cs -c -h hosts_file -p foo/bar file
+           $ cs -c file -h hosts_file -p /foo/bar
 
      Download recursively files from /foo/bar from multiple hosts to a speci-
      fied local path:
 
-           $ cs -d -r -h hosts_file -p /tmp /foo/bar/\*
+           $ cs -r -d /foo/bar/\* -h hosts_file -p /tmp
 
      Run a command on multiple hosts and sort the output:
 
@@ -166,5 +169,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                   December 30, 2014                  FreeBSD 10.0
+FreeBSD 10.0                    April 22, 2015                    FreeBSD 10.0
 ```
