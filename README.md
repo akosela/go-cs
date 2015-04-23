@@ -1,7 +1,7 @@
 ## go-cs
 
-cs is a program for concurrently executing ssh(1)/scp(1) on a number of
-hosts.  It is intended to automate running remote commands or copying
+cs is a program for concurrently executing ssh(1) or scp(1) on a number
+of hosts.  It is intended to automate running remote commands or copying
 files between hosts on a network.  Public key authentication is used for
 establishing passwordless connection.
 
@@ -31,15 +31,15 @@ Port
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.3/go-cs-0.3-1.x86_64.rpm
-# rpm -ivh go-cs-0.3-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.4/go-cs-0.4-1.x86_64.rpm
+# rpm -ivh go-cs-0.4-1.x86_64.rpm
 ```
 
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.3/go-cs-0.3.linux.amd64.tar.gz
-$ tar xvf go-cs-0.3.linux.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.4/go-cs-0.4.linux.amd64.tar.gz
+$ tar xvf go-cs-0.4.linux.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
@@ -48,8 +48,8 @@ $ gzip cs.1
 #### OS X
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.3/go-cs-0.3.darwin.amd64.tar.gz
-$ tar xvf go-cs-0.3.darwin.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.4/go-cs-0.4.darwin.amd64.tar.gz
+$ tar xvf go-cs-0.4.darwin.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
