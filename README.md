@@ -84,8 +84,8 @@ DESCRIPTION
 
      -dd file
              Download file from the remote machine in dir mode.  It will be
-	     saved in a directory named after the remote host.  This comes in
-	     handy when downloading the same file from multiple servers.
+             saved in a directory named after the remote host.  This comes in
+             handy when downloading the same file from multiple servers.
 
      -f script.sh
              Runs shell script on the remote host.
