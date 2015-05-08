@@ -66,7 +66,7 @@ NAME
 SYNOPSIS
      cs [-qrsVv1] [-c file] [-d file] [-dd file] [-f script.sh]
         [-h hosts_file] [-i identity_file] [-l login_name] [-o output_file]
-	[-P port] [-p path] [-t timeout] [command] [[user@]host] ...
+        [-P port] [-p path] [-t timeout] [command] [[user@]host] ...
 
 DESCRIPTION
      cs is a program for concurrently executing ssh(1) or scp(1) on a number
