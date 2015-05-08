@@ -31,15 +31,15 @@ Port
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.4/go-cs-0.4-1.x86_64.rpm
-# rpm -ivh go-cs-0.4-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.5/go-cs-0.5-1.x86_64.rpm
+# rpm -ivh go-cs-0.5-1.x86_64.rpm
 ```
 
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.4/go-cs-0.4.linux.amd64.tar.gz
-$ tar xvf go-cs-0.4.linux.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.5/go-cs-0.5.linux.amd64.tar.gz
+$ tar xvf go-cs-0.5.linux.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
@@ -48,8 +48,8 @@ $ gzip cs.1
 #### OS X
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.4/go-cs-0.4.darwin.amd64.tar.gz
-$ tar xvf go-cs-0.4.darwin.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.5/go-cs-0.5.darwin.amd64.tar.gz
+$ tar xvf go-cs-0.5.darwin.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
@@ -64,9 +64,9 @@ NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
-        [-i identity_file] [-l login_name] [-o output_file] [-P port]
-        [-p path] [-t timeout] [command] [[user@]host] ...
+     cs [-qrsVv1] [-c file] [-d file] [-dd file] [-f script.sh]
+        [-h hosts_file] [-i identity_file] [-l login_name] [-o output_file]
+	[-P port] [-p path] [-t timeout] [command] [[user@]host] ...
 
 DESCRIPTION
      cs is a program for concurrently executing ssh(1) or scp(1) on a number
@@ -81,6 +81,11 @@ DESCRIPTION
 
      -d file
              Download file from the remote machine.
+
+     -dd file
+             Download file from the remote machine in dir mode.  It will be
+	     saved in a directory named after the remote host.  This comes in
+	     handy when downloading the same file from multiple servers.
 
      -f script.sh
              Runs shell script on the remote host.
@@ -154,14 +159,14 @@ EXAMPLES
 
            $ cs -c file -h hosts_file -p /foo/bar
 
-     Download file from hosts foo and bar to a current working directory:
+     Download file from host foo to a current working directory:
 
-           $ cs -d file foo bar
+           $ cs -d file foo
 
      Download recursively files from /foo/bar from multiple hosts to a speci-
-     fied local path:
+     fied local path /tmp with subdirectories named after remote hosts:
 
-           $ cs -r -d /foo/bar/\* -h hosts_file -p /tmp
+           $ cs -r -dd /foo/bar/\* -h hosts_file -p /tmp
 
      Run a command on multiple hosts and sort the output:
 
@@ -173,5 +178,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                    April 22, 2015                    FreeBSD 10.0
+FreeBSD 10.0                       May 8, 2015                    FreeBSD 10.0
 ```

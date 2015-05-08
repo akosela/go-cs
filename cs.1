@@ -154,14 +154,14 @@ Copy file to multiple hosts using specified remote path:
 .Pp
 .Dl $ cs -c file -h hosts_file -p /foo/bar
 .Pp
-Download file from hosts foo and bar to a current working directory:
+Download file from hosts foo to a current working directory:
 .Pp
-.Dl $ cs -d file foo bar
+.Dl $ cs -d file foo
 .Pp
 Download recursively files from /foo/bar from multiple hosts to a
-specified local path:
+specified local path /tmp with subdirectories named after remote hosts:
 .Pp
-.Dl $ cs -r -d /foo/bar/\e* -h hosts_file -p /tmp
+.Dl $ cs -r -dd /foo/bar/\e* -h hosts_file -p /tmp
 .Pp
 Run a command on multiple hosts and sort the output:
 .Pp
