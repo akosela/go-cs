@@ -94,6 +94,17 @@ func checkArgs(copy, download, file, hostsfile string,
 	return command, hosts
 }
 
+func exist(hostname, path string) string {
+	if fi, err := os.Stat(path + "/" + hostname); err != nil {
+		os.Mkdir(path+"/"+hostname, 0755)
+		return path + "/" + hostname
+	} else if fi.IsDir() {
+		return path + "/" + hostname
+	}
+	os.Mkdir(path+"/"+hostname+".host", 0755)
+	return path + "/" + hostname + ".host"
+}
+
 func run(command, hostname, id, login, path, port, timeout, copy,
 	download string, one, recursive, verbose1, verbose2, verbose3 *bool,
 	f *os.File) string {
@@ -115,36 +126,40 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, copy, login+"@"+
-					hostname+":"+path)
+				hostname+":"+path)
 		} else {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, copy, hostname+":"+
-					path)
+				path)
 		}
 	} else if copy != "" {
 		if login != "" {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
 				strict, "-o", tout, copy, login+"@"+hostname+
-					":"+path)
+				":"+path)
 		} else {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
 				strict, "-o", tout, copy, hostname+":"+path)
 		}
 	} else if download != "" && *recursive {
+		path = exist(hostname, path)
+
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, login+"@"+hostname+
-					":"+download, path)
+				":"+download, path)
 		} else {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
 				"-o", strict, "-o", tout, hostname+":"+download,
 				path)
 		}
 	} else if download != "" {
+		path = exist(hostname, path)
+
 		if login != "" {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
 				strict, "-o", tout, login+"@"+hostname+":"+
-					download, path)
+				download, path)
 		} else {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
 				strict, "-o", tout, hostname+":"+download, path)
