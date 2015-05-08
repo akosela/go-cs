@@ -62,7 +62,10 @@ func readFile(file *os.File) []string {
 }
 
 func checkArgs(copy, download, file, hostsfile string,
-	argv []string) (command string, hosts []string) {
+	argv []string) (string, []string) {
+	var command string
+	var hosts []string
+
 	if file != "" || copy != "" || download != "" {
 		if hostsfile == "" {
 			if len(argv) < 1 {
