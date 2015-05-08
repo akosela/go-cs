@@ -61,12 +61,12 @@ func readFile(file *os.File) []string {
 	return s
 }
 
-func checkArgs(copy, download, file, hostsfile string,
+func checkArgs(copy, download, downloadFlat, file, hostsfile string,
 	argv []string) (string, []string) {
 	var command string
 	var hosts []string
 
-	if file != "" || copy != "" || download != "" {
+	if file != "" || copy != "" || download != "" || downloadFlat != "" {
 		if hostsfile == "" {
 			if len(argv) < 1 {
 				flag.Usage()
@@ -109,8 +109,8 @@ func exist(hostname, path string) string {
 }
 
 func run(command, hostname, id, login, path, port, timeout, copy,
-	download string, one, recursive, verbose1, verbose2, verbose3 *bool,
-	f *os.File) string {
+	download, downloadFlat string, one, recursive, verbose1, verbose2,
+	verbose3 *bool, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
 	strict := "StrictHostKeyChecking=no"
@@ -144,8 +144,13 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
 				strict, "-o", tout, copy, hostname+":"+path)
 		}
-	} else if download != "" && *recursive {
-		path = exist(hostname, path)
+	} else if download != "" && *recursive || downloadFlat != "" &&
+		*recursive {
+		if downloadFlat == "" {
+			path = exist(hostname, path)
+		} else {
+			download = downloadFlat
+		}
 
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
@@ -156,8 +161,12 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 				"-o", strict, "-o", tout, hostname+":"+download,
 				path)
 		}
-	} else if download != "" {
-		path = exist(hostname, path)
+	} else if download != "" || downloadFlat != "" {
+		if downloadFlat == "" {
+			path = exist(hostname, path)
+		} else {
+			download = downloadFlat
+		}
 
 		if login != "" {
 			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
@@ -192,14 +201,15 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
-	  [-i identity_file] [-l login_name] [-o output_file] [-P port]
-	  [-p path] [-t timeout] [command] [[user@]host] ...`)
+`usage: cs [-qrsVv1] [-c file] [-d file] [-df file] [-f script.sh]
+	  [-h hosts_file] [-i identity_file] [-l login_name] [-o output_file]
+	  [-P port] [-p path] [-t timeout] [command] [[user@]host] ...`)
 		os.Exit(1)
 	}
 
 	copy := flag.String("c", "", "Copy")
 	download := flag.String("d", "", "Download")
+	downloadFlat := flag.String("df", "", "Download flat")
 	file := flag.String("f", "", "Script file")
 	hostsfile := flag.String("h", "", "Hosts file")
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
@@ -225,7 +235,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	command, hosts := checkArgs(*copy, *download, *file, *hostsfile, argv)
+	command, hosts := checkArgs(*copy, *download, *downloadFlat, *file,
+		*hostsfile, argv)
 
 	var f *os.File
 	if *out != "" {
@@ -247,8 +258,9 @@ func main() {
 	for _, hostname := range hosts {
 		go func(hostname string) {
 			output <- run(command, hostname, *id, *login, *path,
-				*port, *timeout, *copy, *download, one,
-				recursive, verbose1, verbose2, verbose3, f)
+				*port, *timeout, *copy, *download,
+				*downloadFlat, one, recursive, verbose1,
+				verbose2, verbose3, f)
 		}(hostname)
 	}
 
