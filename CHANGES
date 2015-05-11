@@ -1,8 +1,8 @@
-go-cs v0.5						     May 8, 2015
+go-cs v0.5						    May 11, 2015
 
   * Bugfix: clean checkArgs() function.
-  * Feature: add '-dd' option to download files in dir mode.  This will
-    save files in directories named after remote hosts. 
+  * Bugfix: fix '-d' when downloading same file from multiple servers.
+    Now it creates subdirectories named after remote hosts.
 
 go-cs v0.4						    Apr 23, 2015
 

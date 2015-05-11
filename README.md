@@ -64,9 +64,9 @@ NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-qrsVv1] [-c file] [-d file] [-dd file] [-f script.sh]
-        [-h hosts_file] [-i identity_file] [-l login_name] [-o output_file]
-        [-P port] [-p path] [-t timeout] [command] [[user@]host] ...
+     cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+     [-i identity_file] [-l login_name] [-o output_file] [-P port]
+     [-p path] [-t timeout] [command] [[user@]host] ...
 
 DESCRIPTION
      cs is a program for concurrently executing ssh(1) or scp(1) on a number
@@ -80,12 +80,9 @@ DESCRIPTION
              Copy file to the remote machine.
 
      -d file
-             Download file from the remote machine.
-
-     -dd file
-             Download file from the remote machine in dir mode.  It will be
-             saved in a directory named after the remote host.  This comes in
-             handy when downloading the same file from multiple servers.
+             Download file from the remote machine.  It will be saved in a
+             directory named after the remote host only when you download from
+             multiple servers.
 
      -f script.sh
              Runs shell script on the remote host.
@@ -166,7 +163,7 @@ EXAMPLES
      Download recursively files from /foo/bar from multiple hosts to a speci-
      fied local path /tmp with subdirectories named after remote hosts:
 
-           $ cs -r -dd /foo/bar/\* -h hosts_file -p /tmp
+           $ cs -r -d /foo/bar/\* -h hosts_file -p /tmp
 
      Run a command on multiple hosts and sort the output:
 
@@ -178,5 +175,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                       May 8, 2015                    FreeBSD 10.0
+FreeBSD 10.0                      May 11, 2015                    FreeBSD 10.0
 ```
