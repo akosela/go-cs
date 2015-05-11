@@ -20,7 +20,7 @@
 .\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
-.Dd May 8, 2015
+.Dd May 11, 2015
 .Dt CS 1
 .Os
 .Sh NAME
@@ -32,7 +32,6 @@
 .Op Fl qrsVv1
 .Op Fl c Ar file
 .Op Fl d Ar file
-.Op Fl dd Ar file
 .Op Fl f Ar script.sh
 .Op Fl h Ar hosts_file
 .Op Fl i Ar identity_file
@@ -68,14 +67,8 @@ to the remote machine.
 Download
 .Ar file
 from the remote machine.
-.It Fl dd Ar file
-Download
-.Ar file
-from the remote machine in dir mode.
-It will be saved in a directory named after the remote host.
-This comes in handy when downloading the same
-.Ar file
-from multiple servers.
+It will be saved in a directory named after the remote host only when
+you download from multiple servers.
 .It Fl f Ar script.sh
 Runs a shell script on the remote host.
 .It Fl h Ar hosts_file
@@ -154,14 +147,14 @@ Copy file to multiple hosts using specified remote path:
 .Pp
 .Dl $ cs -c file -h hosts_file -p /foo/bar
 .Pp
-Download file from hosts foo to a current working directory:
+Download file from host foo to a current working directory:
 .Pp
 .Dl $ cs -d file foo
 .Pp
 Download recursively files from /foo/bar from multiple hosts to a
 specified local path /tmp with subdirectories named after remote hosts:
 .Pp
-.Dl $ cs -r -dd /foo/bar/\e* -h hosts_file -p /tmp
+.Dl $ cs -r -d /foo/bar/\e* -h hosts_file -p /tmp
 .Pp
 Run a command on multiple hosts and sort the output:
 .Pp
