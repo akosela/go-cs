@@ -31,15 +31,15 @@ Port
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.5/go-cs-0.5-1.x86_64.rpm
-# rpm -ivh go-cs-0.5-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6-1.x86_64.rpm
+# rpm -ivh go-cs-0.6-1.x86_64.rpm
 ```
 
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.5/go-cs-0.5.linux.amd64.tar.gz
-$ tar xvf go-cs-0.5.linux.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6.linux.amd64.tar.gz
+$ tar xvf go-cs-0.6.linux.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
@@ -48,8 +48,8 @@ $ gzip cs.1
 #### OS X
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.5/go-cs-0.5.darwin.amd64.tar.gz
-$ tar xvf go-cs-0.5.darwin.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6.darwin.amd64.tar.gz
+$ tar xvf go-cs-0.6.darwin.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
@@ -58,15 +58,15 @@ $ gzip cs.1
 ## Man page
 
 ```
-CS(1)                   FreeBSD General Commands Manual                  CS(1)
+CS(1)                      BSD General Commands Manual                   CS(1)
 
 NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+     cs [-qrsVvt1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
      [-i identity_file] [-l login_name] [-o output_file] [-P port]
-     [-p path] [-t timeout] [command] [[user@]host] ...
+     [-p path] [-to timeout] [command] [[user@]host] ...
 
 DESCRIPTION
      cs is a program for concurrently executing ssh(1) or scp(1) on a number
@@ -118,7 +118,9 @@ DESCRIPTION
 
      -s      Sorts output by lines.
 
-     -t timeout
+     -t      Force pseudo-tty allocation.	
+
+     -to timeout
              Specifies the timeout (in seconds) used when connecting to the
              SSH server.  The default value is 5 seconds.
 
@@ -175,5 +177,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-FreeBSD 10.0                      May 11, 2015                    FreeBSD 10.0
+BSD                             October 7, 2016                            BSD
 ```

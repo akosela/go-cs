@@ -109,13 +109,14 @@ func exist(hostname, path string) string {
 }
 
 func run(command, hostname, id, login, path, port, timeout, copy,
-	download string, one, recursive, verbose1, verbose2, verbose3 *bool,
-	ddir int, f *os.File) string {
+	download string, one, recursive, verbose1, verbose2, verbose3,
+	tty *bool, ddir int, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
 	strict := "StrictHostKeyChecking=no"
 	tout := "ConnectTimeout=" + timeout
 	flag := "-"
+	flag2 := ""
 	if *verbose1 {
 		flag = "-v"
 	} else if *verbose2 {
@@ -172,13 +173,15 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 				strict, "-o", tout, hostname+":"+download, path)
 		}
 	} else {
+		if *tty {
+			flag2 = "tt"
+		}
 		if login != "" {
-			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
-				port, "-o", strict, "-o", tout, hostname,
-				command)
-		} else {
-			cmd = exec.Command(ssh, flag+"i", id, "-p", port, "-o",
-				strict, "-o", tout, hostname, command)
+			cmd = exec.Command(ssh, flag+flag2+"i", id, "-l", login,
+			"-p", port, "-o", strict, "-o", tout, hostname, command)
+			} else {
+			cmd = exec.Command(ssh, flag+flag2+"i", id, "-p", port,
+			"-o", strict, "-o", tout, hostname, command)
 		}
 	}
 
@@ -196,9 +199,9 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-qrsVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+`usage: cs [-qrsVvt1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
 	  [-i identity_file] [-l login_name] [-o output_file] [-P port]
-	  [-p path] [-t timeout] [command] [[user@]host] ...`)
+	  [-p path] [-to timeout] [command] [[user@]host] ...`)
 		os.Exit(1)
 	}
 
@@ -216,7 +219,8 @@ func main() {
 	quiet := flag.Bool("q", false, "Quiet")
 	recursive := flag.Bool("r", false, "Recursive")
 	sorted := flag.Bool("s", false, "Sort")
-	timeout := flag.String("t", "5", "Timeout")
+	tty := flag.Bool("t", false, "Force pseudo-tty allocation")
+	timeout := flag.String("to", "5", "Timeout")
 	version := flag.Bool("V", false, "Version")
 	verbose1 := flag.Bool("v", false, "Verbose mode 1")
 	verbose2 := flag.Bool("vv", false, "Verbose mode 2")
@@ -225,7 +229,7 @@ func main() {
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs v0.5")
+		fmt.Println("cs 0.6")
 		os.Exit(1)
 	}
 
@@ -257,8 +261,8 @@ func main() {
 		go func(hostname string) {
 			output <- run(command, hostname, *id, *login, *path,
 				*port, *timeout, *copy, *download, one,
-				recursive, verbose1, verbose2, verbose3, ddir,
-				f)
+				recursive, verbose1, verbose2, verbose3,
+				tty, ddir, f)
 		}(hostname)
 	}
 
