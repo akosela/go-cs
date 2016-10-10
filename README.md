@@ -177,5 +177,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-BSD                             October 7, 2016                            BSD
+BSD                            October 10, 2016                            BSD
 ```
