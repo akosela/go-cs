@@ -199,7 +199,7 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-qrsVvt1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+`usage: cs [-qrstVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
 	  [-i identity_file] [-l login_name] [-o output_file] [-P port]
 	  [-p path] [-to timeout] [command] [[user@]host] ...`)
 		os.Exit(1)

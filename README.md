@@ -64,7 +64,7 @@ NAME
      cs -- concurrent ssh client
 
 SYNOPSIS
-     cs [-qrsVvt1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
+     cs [-qrstVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
      [-i identity_file] [-l login_name] [-o output_file] [-P port]
      [-p path] [-to timeout] [command] [[user@]host] ...
 
