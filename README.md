@@ -23,8 +23,8 @@ $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6-1.x
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6.linux.amd64.tar.gz
-$ tar xvf go-cs-0.6.linux.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6.linux.tar.gz
+$ tar xvf go-cs-0.6.linux.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
@@ -48,8 +48,8 @@ Port
 #### OS X
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6.darwin.amd64.tar.gz
-$ tar xvf go-cs-0.6.darwin.amd64.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.6/go-cs-0.6.darwin.tar.gz
+$ tar xvf go-cs-0.6.darwin.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
