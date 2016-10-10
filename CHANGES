@@ -1,4 +1,4 @@
-go-cs v0.6						     Oct 7, 2016
+go-cs v0.6						    Oct 10, 2016
 
   * Bugfix: new '-t' option to make sudo(8) happy.
   * Change: rename '-t' to '-to'.
