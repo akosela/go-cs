@@ -13,21 +13,6 @@ establishing passwordless connection.
 $ go get github.com/akosela/go-cs/cs
 ```
 
-#### FreeBSD
-
-Package
-
-```
-# pkg install go-cs
-```
-
-Port
-
-```
-# cd /usr/ports/net/go-cs
-# make install clean
-```
-
 #### Linux (rpm)
 
 ```
@@ -43,6 +28,21 @@ $ tar xvf go-cs-0.6.linux.amd64.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
+```
+
+#### FreeBSD
+
+Package
+
+```
+# pkg install go-cs
+```
+
+Port
+
+```
+# cd /usr/ports/net/go-cs
+# make install clean
 ```
 
 #### OS X
