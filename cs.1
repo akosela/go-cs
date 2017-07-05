@@ -20,7 +20,7 @@
 .\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
-.Dd October 10, 2016
+.Dd June 30, 2017
 .Dt CS 1
 .Os
 .Sh NAME
@@ -29,17 +29,32 @@
 .Sh SYNOPSIS
 .Nm cs
 .Bk -words
-.Op Fl qrstVv1
+.Op Fl eqrstuVv1
 .Op Fl c Ar file
+.Op Fl cmd
+.Op Fl cname
 .Op Fl d Ar file
+.Op Fl dd
+.Op Fl du Ar path
 .Op Fl f Ar script.sh
 .Op Fl h Ar hosts_file
 .Op Fl i Ar identity_file
 .Op Fl l Ar login_name
+.Op Fl mx
+.Op Fl nc
+.Op Fl nmap
+.Op Fl ns
 .Op Fl o Ar output_file
 .Op Fl P Ar port
 .Op Fl p Ar path
+.Op Fl ping
+.Op Fl soa
 .Op Fl to Ar timeout
+.Op Fl top
+.Op Fl tr
+.Op Fl tri
+.Op Fl uname
+.Op Fl vm
 .Op Ar command
 .Sm off
 .Oo
@@ -50,12 +65,9 @@
 .Ar ...
 .Sh DESCRIPTION
 .Nm
-is a program for concurrently executing ssh(1) or scp(1) on a number of
-hosts.
-It is intended to automate running remote commands or copying files
-between hosts on a network.
-Public key authentication is used for establishing passwordless
-connection.
+is a program for concurrently executing local or remote commands on
+multiple hosts.
+It is using OpenSSH for running remote commands.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -63,16 +75,27 @@ The options are as follows:
 Copy
 .Ar file
 to the remote machine.
+.It Fl cmd
+Run an arbitrary local command concurrently on multiple hosts.
+.It Fl cname
+Run a local DNS query of type CNAME.
 .It Fl d Ar file
 Download
 .Ar file
 from the remote machine.
 It will be saved in a directory named after the remote host only when
 you download from multiple servers.
+.It Fl dd
+Prints basic hardware specs for remote server (sudo(8) required).
+.It Fl du Ar path
+Prints the largest files for specified directory (sudo(8) required,
+units in M).
+.It fl e
+Prints hosts with errors only.
 .It Fl f Ar script.sh
-Runs a shell script on the remote host.
+Run a local shell script on the remote host.
 .It Fl h Ar hosts_file
-Reads hostnames from the given
+Read hostnames from the given
 .Ar hosts_file .
 Lines in the
 .Ar hosts_file
@@ -87,6 +110,15 @@ The default is
 .It Fl l Ar login_name
 Specifies the user to log in as on the remote machine.
 This also may be specified on a per-host basis on the command line.
+.It Fl mx
+Run a local DNS query of type MX.
+.It Fl nc
+Tests specified port with netcat(1).
+Default is 22/tcp.
+.It Fl nmap
+Scans host with nmap(1).
+.It Fl ns
+Runs a local DNS query of type NS.
 .It Fl o Ar output_file
 Saves standard output and standard error to a file.
 .It Fl P Ar port
@@ -94,6 +126,8 @@ Port to connect to on the remote host.
 .It Fl p Ar path
 Specifies remote or local path for files in a remote copy or download
 mode.
+.It Fl ping
+Sends ICMP ECHO_REQUEST to specified host.
 .It Fl q
 Quiet mode.
 Supresses verbose standard output from remote machines.
@@ -102,13 +136,25 @@ This mode reports success or failure only.
 Recursively copy entire directories.
 It follows symbolic links encountered in the tree traversal.
 .It Fl s
-Sorts output by lines.
+Sort output.
+.It Fl soa
+Runs a local DNS query of type SOA.
 .It Fl t
 Force pseudo-tty allocation.
 .It Fl to Ar timeout
 Specifies the timeout (in seconds) used when connecting to the SSH
 server.
-The default value is 5 seconds.
+The default value is 4 seconds.
+.It Fl top
+Runs remote top(1) in batch mode on specified host.
+.It Fl tr
+Runs local traceroute(8).
+.It Fl tri
+Runs local traceroute(8) using ICMP (sudo(8) required).
+.It Fl uname
+Prints remote system information including OS version.
+.It Fl u
+Runs remote uptime(1) on specified host.
 .It Fl V
 Displays the version number and exit.
 .It Fl v
@@ -122,6 +168,8 @@ Multiple
 .Fl v
 options increase the verbosity.
 The maximum is 3.
+.It Fl vm
+Runs remote vmstat(8) on specified host.
 .It Fl 1
 One line mode, useful for sorting output later.
 .El
@@ -145,11 +193,15 @@ Run a shell script on multiple hosts:
 .Pp
 .Dl $ cs -f script.sh foo{1..100}
 .Pp
+Run a shell script with sudo(8) on multiple hosts:
+.Pp
+.Dl $ cs -t -f script.sh foo{1..100}
+.Pp
 Copy file to multiple hosts using specified remote path:
 .Pp
 .Dl $ cs -c file -h hosts_file -p /foo/bar
 .Pp
-Download file from host foo to a current working directory:
+Download file from host:~ foo to a current working directory:
 .Pp
 .Dl $ cs -d file foo
 .Pp
@@ -161,9 +213,22 @@ specified local path /tmp with subdirectories named after remote hosts:
 Run a command on multiple hosts and sort the output:
 .Pp
 .Dl $ cs -1 -h hosts_file 'free -m | grep Swap' | sort -rnk4 | head
+.Pp
+Run local ping(1) on multiple hosts:
+.Pp
+.Dl $ cs -ping foo{1..100}
+.Pp
+Run an arbitrary local command on multiple hosts.
+.Pp
+.Dl $ cs -cmd 'ping -c1' foo{1..100}
+.Pp
+Run remote uptime(1) on multiple hosts specified in a hosts_file:
+.Pp
+.Dl $ cs -u -h hosts_file
 .Sh SEE ALSO
 .Xr scp 1 ,
 .Xr ssh 1 ,
-.Xr ssh_config 5
+.Xr ssh_config 5 ,
+.Xr sudo 8
 .Sh AUTHORS
 .An Andy Kosela Aq akosela@andykosela.com

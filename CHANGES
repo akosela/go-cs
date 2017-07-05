@@ -1,3 +1,9 @@
+go-cs v0.7						    Jun 30, 2017
+
+  * Change: Refactor some functions.
+  * Feature: add '-cmd, -cname, -dd, -du, -e, -mx, -nc, -nmap, -ns,
+    -ping, -soa, -top, -tr, -tri, -u, -uname, -vm' options.
+
 go-cs v0.6						    Oct 10, 2016
 
   * Bugfix: new '-t' option to make sudo(8) happy.

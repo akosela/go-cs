@@ -3,10 +3,8 @@
 // license that can be found in the LICENSE file.
 
 // Concurrent ssh client.
-// cs is a program for concurrently executing ssh(1) or scp(1) on a
-// number of hosts.  It is intended to automate running remote commands
-// or copying files between hosts on a network.  Public key
-// authentication is used for establishing passwordless connection.
+// cs is a program for concurrently executing local or remote commands
+// on multiple hosts.  It is using OpenSSH for running remote commands.
 package main
 
 import (
@@ -15,20 +13,27 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
 )
 
 const (
+	du      = "/usr/bin/du"
+	host    = "/usr/bin/host"
+	nc      = "/usr/bin/nc"
 	scp     = "/usr/bin/scp"
 	ssh     = "/usr/bin/ssh"
+	top     = "/usr/bin/top"
+	uptime  = "/usr/bin/uptime"
+	vmstat  = "/usr/bin/vmstat"
 	timeFmt = "02-Jan-2006 15:04:05"
 )
 
 func createFile(path string) *os.File {
-	file, err := os.OpenFile(path,
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND,
+		0666)
 	if err != nil {
 		fmt.Println("cs:", err)
 		os.Exit(1)
@@ -61,10 +66,26 @@ func readFile(file *os.File) []string {
 	return s
 }
 
-func checkArgs(copy, download, file, hostsfile string,
+func checkArgs(nocmd int, copy, download, file, hostsfile string, tty *bool,
 	argv []string) (string, []string) {
 	var command string
 	var hosts []string
+
+	if nocmd == 1 {
+		if hostsfile == "" {
+			if len(argv) < 1 {
+				flag.Usage()
+			}
+			command = ""
+			hosts = argv[0:]
+		} else {
+			f := openFile(hostsfile)
+			hosts = readFile(f)
+			command = ""
+		}
+
+		return command, hosts
+	}
 
 	if file != "" || copy != "" || download != "" {
 		if hostsfile == "" {
@@ -78,7 +99,12 @@ func checkArgs(copy, download, file, hostsfile string,
 		}
 		if file != "" {
 			f := openFile(file)
-			command = strings.Join(readFile(f), "")
+			if *tty {
+				c := strings.Join(readFile(f), "")
+				command = "sudo sh <<'EOF'" + c + "EOF"
+			} else {
+				command = strings.Join(readFile(f), "")
+			}
 		}
 	} else {
 		if hostsfile == "" {
@@ -108,13 +134,15 @@ func exist(hostname, path string) string {
 	return path + "/" + hostname + ".host"
 }
 
-func run(command, hostname, id, login, path, port, timeout, copy,
-	download string, one, recursive, verbose1, verbose2, verbose3,
-	tty *bool, ddir int, f *os.File) string {
+func run(command, hostname, id, login, path, port, timeout, copy, disku,
+	download string, dd, cname, lcmd, netcat, nmap, ns, mx, one, png,
+	recursive, soa, up, verbose1, verbose2, verbose3, top1, tr, tri, tty,
+	uname, vm *bool, ddir int, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
-	strict := "StrictHostKeyChecking=no"
-	tout := "ConnectTimeout=" + timeout
+	batchmode := "-oBatchMode=yes"
+	strict := "-oStrictHostKeyChecking=no"
+	tout := "-oConnectTimeout=" + timeout
 	flag := "-"
 	flag2 := ""
 	if *verbose1 {
@@ -129,34 +157,35 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 	if copy != "" && *recursive {
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, copy, login+"@"+
+				batchmode, strict, tout, copy, login+"@"+
 				hostname+":"+path)
 		} else {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, copy, hostname+":"+
+				batchmode, strict, tout, copy, hostname+":"+
 				path)
 		}
 	} else if copy != "" {
 		if login != "" {
-			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, copy, login+"@"+hostname+
-				":"+path)
+			cmd = exec.Command(scp, flag+"i", id, "-P", port,
+				batchmode, strict, tout, copy, login+"@"+
+				hostname+":"+path)
 		} else {
-			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, copy, hostname+":"+path)
+			cmd = exec.Command(scp, flag+"i", id, "-P", port,
+				batchmode, strict, tout, copy, hostname+":"+
+				path)
 		}
 	} else if download != "" && *recursive {
 		if ddir == 1 {
 			path = exist(hostname, path)
-		} 
+		}
 
 		if login != "" {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, login+"@"+hostname+
+				batchmode, strict, tout, login+"@"+hostname+
 				":"+download, path)
 		} else {
 			cmd = exec.Command(scp, flag+"r", "-i", id, "-P", port,
-				"-o", strict, "-o", tout, hostname+":"+download,
+				batchmode, strict, tout, hostname+":"+download,
 				path)
 		}
 	} else if download != "" {
@@ -165,12 +194,114 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 		}
 
 		if login != "" {
-			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, login+"@"+hostname+":"+
+			cmd = exec.Command(scp, flag+"i", id, "-P", port,
+				batchmode, strict, tout, login+"@"+hostname+":"+
 				download, path)
 		} else {
-			cmd = exec.Command(scp, flag+"i", id, "-P", port, "-o",
-				strict, "-o", tout, hostname+":"+download, path)
+			cmd = exec.Command(scp, flag+"i", id, "-P", port,
+				batchmode, strict, tout, hostname+":"+download,
+				path)
+		}
+	} else if *cname {
+		cmd = exec.Command(host, "-tcname", hostname)
+	} else if *dd {
+		c := "hostname " +
+			"; sudo dmidecode -s system-product-name " +
+			"; sudo dmidecode -s system-serial-number " +
+			"; /sbin/ifconfig"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"tti", id, "-l", login,
+				"-p", port, batchmode, strict, tout, hostname,
+				c)
+		} else {
+			cmd = exec.Command(ssh, flag+"tti", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
+		}
+	} else if disku != "" {
+		c := "sudo " + du + " -amx " + disku + " |sort -rn |head -20"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"tti", id, "-l", login,
+				"-p", port, batchmode, strict, tout, hostname,
+				c)
+		} else {
+			cmd = exec.Command(ssh, flag+"tti", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
+		}
+	} else if *ns {
+		cmd = exec.Command(host, hostname)
+	} else if *nmap {
+		cmd = exec.Command("nmap", hostname)
+	} else if *netcat {
+		cmd = exec.Command(nc, "-w1", hostname, port)
+	} else if *mx {
+		cmd = exec.Command(host, "-tmx", hostname)
+	} else if *png {
+		var c string
+		if runtime.GOOS == "linux" {
+			c = "ping -nc1 -s16 -W3 " + hostname + " |grep from"
+		} else {
+			c = "ping -nc1 -s16 -W3000 " + hostname + " |grep from"
+		}
+		cmd = exec.Command("/bin/sh", "-c", c)
+	} else if *lcmd {
+		scmd := strings.Split(command, " ")
+
+		switch len(scmd) {
+		case 1:
+			cmd = exec.Command(scmd[0], hostname)
+		case 2:
+			cmd = exec.Command(scmd[0], scmd[1], hostname)
+		case 3:
+			cmd = exec.Command(scmd[0], scmd[1], scmd[2], hostname)
+		case 4:
+			cmd = exec.Command(scmd[0], scmd[1], scmd[2], scmd[3],
+				hostname)
+		case 5:
+			cmd = exec.Command(scmd[0], scmd[1], scmd[2], scmd[3],
+				scmd[4], hostname)
+		}
+	} else if *soa {
+		cmd = exec.Command(host, "-tsoa", hostname)
+	} else if *top1 {
+		c := top + " -cbn1 |grep -v '\\[' |grep -v /usr/bin/top " +
+			"|head -20"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, c)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
+		}
+	} else if *tr {
+		cmd = exec.Command("traceroute", hostname)
+	} else if *tri {
+		cmd = exec.Command("sudo", "traceroute", "-I", hostname)
+	} else if *uname {
+		c := "if [ `uname -s` == Linux ]; then uname -a; " +
+			"cat /etc/redhat-release; else uname -a; fi"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, c)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
+		}
+	} else if *up {
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, uptime)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, uptime)
+		}
+	} else if *vm {
+		c := vmstat + " -SM"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, c)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
 		}
 	} else {
 		if *tty {
@@ -178,10 +309,11 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 		}
 		if login != "" {
 			cmd = exec.Command(ssh, flag+flag2+"i", id, "-l", login,
-			"-p", port, "-o", strict, "-o", tout, hostname, command)
-			} else {
+				"-p", port, batchmode, strict, tout, hostname,
+				command)
+		} else {
 			cmd = exec.Command(ssh, flag+flag2+"i", id, "-p", port,
-			"-o", strict, "-o", tout, hostname, command)
+				batchmode, strict, tout, hostname, command)
 		}
 	}
 
@@ -199,43 +331,69 @@ func run(command, hostname, id, login, path, port, timeout, copy,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-qrstVv1] [-c file] [-d file] [-f script.sh] [-h hosts_file]
-	  [-i identity_file] [-l login_name] [-o output_file] [-P port]
-	  [-p path] [-to timeout] [command] [[user@]host] ...`)
+`usage: cs [-eqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
+	  [-f script.sh] [-h hosts_file] [-i identity_file] [-l login_name]
+	  [-mx] [-nc] [-nmap] [-ns] [-o output_file] [-P port] [-p path]
+	  [-ping] [-soa] [-to timeout] [-top] [-tr] [-tri] [-uname] [-vm]
+	  [command] [[user@]host] ...`)
 		os.Exit(1)
 	}
 
+	lcmd := flag.Bool("cmd", false, "Local command")
+	cname := flag.Bool("cname", false, "CNAME")
 	copy := flag.String("c", "", "Copy")
+	dd := flag.Bool("dd", false, "Dmidecode")
+	disku := flag.String("du", "", "Du")
 	download := flag.String("d", "", "Download")
+	error := flag.Bool("e", false, "Error")
 	file := flag.String("f", "", "Script file")
 	hostsfile := flag.String("h", "", "Hosts file")
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
 		"Identity file")
 	login := flag.String("l", "", "Login name")
+	mx := flag.Bool("mx", false, "MX")
+	netcat := flag.Bool("nc", false, "Netcat")
+	nmap := flag.Bool("nmap", false, "Nmap")
+	ns := flag.Bool("ns", false, "NS")
 	one := flag.Bool("1", false, "One line")
 	out := flag.String("o", "", "Output filename")
-	port := flag.String("P", "22", "SSH port")
 	path := flag.String("p", ".", "Path")
+	png := flag.Bool("ping", false, "Ping")
+	port := flag.String("P", "22", "SSH port")
 	quiet := flag.Bool("q", false, "Quiet")
 	recursive := flag.Bool("r", false, "Recursive")
+	soa := flag.Bool("soa", false, "SOA")
 	sorted := flag.Bool("s", false, "Sort")
+	timeout := flag.String("to", "4", "Timeout")
+	top1 := flag.Bool("top", false, "Top")
+	tr := flag.Bool("tr", false, "Traceroute")
+	tri := flag.Bool("tri", false, "Traceroute -I")
 	tty := flag.Bool("t", false, "Force pseudo-tty allocation")
-	timeout := flag.String("to", "5", "Timeout")
+	uname := flag.Bool("uname", false, "Uname")
+	up := flag.Bool("u", false, "Uptime")
 	version := flag.Bool("V", false, "Version")
 	verbose1 := flag.Bool("v", false, "Verbose mode 1")
 	verbose2 := flag.Bool("vv", false, "Verbose mode 2")
 	verbose3 := flag.Bool("vvv", false, "Verbose mode 3")
+	vm := flag.Bool("vm", false, "Vmstat")
 	flag.Parse()
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs 0.6")
+		fmt.Println("cs 0.7")
 		os.Exit(1)
 	}
 
-	command, hosts := checkArgs(*copy, *download, *file, *hostsfile, argv)
+	nocmd := 0
+	if *cname || *dd || *disku != "" || *netcat || *nmap || *ns || *mx ||
+		*png || *soa || *top1 || *tr || *tri || *uname || *up || *vm {
+		nocmd = 1
+	}
 
-	ddir := 0 
+	command, hosts := checkArgs(nocmd, *copy, *download, *file, *hostsfile,
+		tty, argv)
+
+	ddir := 0
 	if len(hosts) > 1 {
 		ddir = 1
 	}
@@ -256,13 +414,15 @@ func main() {
 		}
 	}
 
-	output := make(chan string, 10)
+	output := make(chan string)
 	for _, hostname := range hosts {
 		go func(hostname string) {
 			output <- run(command, hostname, *id, *login, *path,
-				*port, *timeout, *copy, *download, one,
-				recursive, verbose1, verbose2, verbose3,
-				tty, ddir, f)
+				*port, *timeout, *copy, *disku, *download, dd,
+				cname, lcmd, netcat, nmap, ns, mx, one, png,
+				recursive, soa, up, verbose1, verbose2,
+				verbose3, top1, tr, tri, tty, uname, vm, ddir,
+				f)
 		}(hostname)
 	}
 
@@ -274,8 +434,15 @@ func main() {
 			if !strings.Contains(c, ":\n") {
 				e++
 				err = 1
+				if !strings.Contains(c, "\n") {
+					c = c + "\n"
+				}
 			}
+
 			if *sorted {
+				if *error && err == 0 {
+					continue
+				}
 				if *quiet {
 					if *out != "" {
 						mk[i] = c
@@ -292,15 +459,26 @@ func main() {
 				continue
 			}
 			if *out != "" {
+				if *error && err == 0 {
+					continue
+				}
 				f.WriteString(c)
 			}
 			if *quiet {
 				split := strings.Split(c, ":")
+				if *error && err == 0 {
+					continue
+				}
+
 				if err == 1 {
 					fmt.Println(split[0] + "\t[ERROR]")
 					continue
 				}
 				fmt.Println(split[0] + "\t[OK]")
+				continue
+			}
+
+			if *error && err == 0 {
 				continue
 			}
 			fmt.Print(c)
@@ -332,7 +510,7 @@ func main() {
 	if *out != "" {
 		now := time.Now()
 		nowStr := now.Format(timeFmt)
-		f.WriteString("------ END: " + nowStr + "   ------\n")
+		f.WriteString("------   END: " + nowStr + " ------\n")
 		f.Close()
 	}
 }
