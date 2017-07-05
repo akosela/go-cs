@@ -321,11 +321,11 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 	if err != nil {
 		return hostname + ": " + string(buf)
 	}
+
 	if *one {
 		return hostname + ": " + string(buf)
-	} else {
-		return hostname + ":\n" + string(buf)
 	}
+	return hostname + ":\n" + string(buf)
 }
 
 func main() {
