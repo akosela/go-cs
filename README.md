@@ -1,5 +1,7 @@
 
+[![Build Status](https://travis-ci.org/akosela/go-cs.svg?branch=master)](https://travis-ci.org/akosela/go-cs)
 [![Go Report Card](https://goreportcard.com/badge/github.com/akosela/go-cs)](https://goreportcard.com/report/github.com/akosela/go-cs)
+[![GoDoc](https://godoc.org/github.com/akosela/go-cs/cs?status.svg)](https://godoc.org/github.com/akosela/go-cs/cs)
 
 ## go-cs 
 
