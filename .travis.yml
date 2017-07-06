@@ -5,10 +5,10 @@ go:
   - 1.8.x
   - master
 
-env:
-  - GIMME_OS=linux GIMME_ARCH=amd64
-  - GIMME_OS=freebsd GIMME_ARCH=amd64
-  - GIMME_OS=darwin GIMME_ARCH=amd64
+#env:
+#  - GIMME_OS=linux GIMME_ARCH=amd64
+#  - GIMME_OS=freebsd GIMME_ARCH=amd64
+#  - GIMME_OS=darwin GIMME_ARCH=amd64
 
 before_script: go vet ./...
 script: cd cs && go build -v ./...
