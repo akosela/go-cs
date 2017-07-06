@@ -5,4 +5,10 @@ go:
   - 1.8.x
   - master
 
-install: go get github.com/akosela/go-cs/cs
+env:
+  - GIMME_OS=linux GIMME_ARCH=amd64
+  - GIMME_OS=freebsd GIMME_ARCH=amd64
+  - GIMME_OS=darwin GIMME_ARCH=amd64
+
+before_script: go vet ./...
+script: go build -v ./...
