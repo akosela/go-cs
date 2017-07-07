@@ -53,6 +53,21 @@ Port
 # make install clean
 ```
 
+#### OpenBSD
+
+Package
+
+```
+# pkg_add go-cs
+```
+
+Port
+
+```
+# cd /usr/ports/sysutils/go-cs
+# make install clean
+```
+
 #### MacOS
 
 ```
