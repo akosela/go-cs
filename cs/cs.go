@@ -22,6 +22,8 @@ import (
 const (
 	du      = "/usr/bin/du"
 	host    = "/usr/bin/host"
+	hostn	= "/bin/hostname"
+	ifconf 	= "/sbin/ifconfig"
 	nc      = "/usr/bin/nc"
 	scp     = "/usr/bin/scp"
 	ssh     = "/usr/bin/ssh"
@@ -135,7 +137,7 @@ func exist(hostname, path string) string {
 }
 
 func run(command, hostname, id, login, path, port, timeout, copy, disku,
-	download string, dd, cname, lcmd, netcat, nmap, ns, mx, one, png,
+	download string, dd, cname, ip, lcmd, netcat, nmap, ns, mx, one, png,
 	recursive, soa, up, verbose1, verbose2, verbose3, top1, tr, tri, tty,
 	uname, vm *bool, ddir int, f *os.File) string {
 
@@ -205,27 +207,36 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 	} else if *cname {
 		cmd = exec.Command(host, "-tcname", hostname)
 	} else if *dd {
-		c := "hostname " +
-			"; sudo dmidecode -s system-product-name " +
-			"; sudo dmidecode -s system-serial-number " +
-			"; /sbin/ifconfig"
+		c := "sudo dmidecode -s system-product-name " +
+			"; sudo dmidecode -s system-serial-number"
 		if login != "" {
-			cmd = exec.Command(ssh, flag+"tti", id, "-l", login,
-				"-p", port, batchmode, strict, tout, hostname,
-				c)
+			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-l",
+				login, "-p", port, batchmode, strict, tout,
+				hostname, c)
 		} else {
-			cmd = exec.Command(ssh, flag+"tti", id, "-p", port,
-				batchmode, strict, tout, hostname, c)
+			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-p",
+				port, batchmode, strict, tout, hostname, c)
 		}
 	} else if disku != "" {
-		c := "sudo " + du + " -amx " + disku + " |sort -rn |head -20"
+		c := "if [ `uname -s` == OpenBSD ]; then sudo " + du +
+			" -akx " + disku + " |sort -rn 2>/dev/null |head -20" +
+			"; else sudo " + du + " -amx " + disku +
+			" |sort -rn 2>/dev/null |head -20; fi"
 		if login != "" {
-			cmd = exec.Command(ssh, flag+"tti", id, "-l", login,
-				"-p", port, batchmode, strict, tout, hostname,
-				c)
+			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-l",
+				login, "-p", port, batchmode, strict, tout,
+				hostname, c)
 		} else {
-			cmd = exec.Command(ssh, flag+"tti", id, "-p", port,
-				batchmode, strict, tout, hostname, c)
+			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-p",
+				port, batchmode, strict, tout, hostname, c)
+		}
+	} else if *ip {
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, ifconf)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, ifconf)
 		}
 	} else if *ns {
 		cmd = exec.Command(host, hostname)
@@ -239,8 +250,10 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 		var c string
 		if runtime.GOOS == "linux" {
 			c = "ping -nc1 -s16 -W3 " + hostname + " |grep from"
-		} else {
+		} else if runtime.GOOS == "freebsd" {
 			c = "ping -nc1 -s16 -W3000 " + hostname + " |grep from"
+		} else {
+			c = "ping -nc1 -s16 -w3 " + hostname + " |grep from"
 		}
 		cmd = exec.Command("/bin/sh", "-c", c)
 	} else if *lcmd {
@@ -263,8 +276,9 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 	} else if *soa {
 		cmd = exec.Command(host, "-tsoa", hostname)
 	} else if *top1 {
-		c := top + " -cbn1 |grep -v '\\[' |grep -v /usr/bin/top " +
-			"|head -20"
+		c := "if [ `uname -s` == Linux ]; then " + top +
+			" -cbn1 |grep -ve '\\[' -e " + top + " 2>/dev/null" +
+			" |head -20; else " + top + " -b 13; fi"
 		if login != "" {
 			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
 				port, batchmode, strict, tout, hostname, c)
@@ -295,7 +309,9 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 				batchmode, strict, tout, hostname, uptime)
 		}
 	} else if *vm {
-		c := vmstat + " -SM"
+		c := "if [ `uname -s` == Linux ]; then " + vmstat + " -SM; " +
+			"elif [ `uname -s` == FreeBSD ]; then " + vmstat +
+			" -h; else " + vmstat + "; fi"
 		if login != "" {
 			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
 				port, batchmode, strict, tout, hostname, c)
@@ -332,10 +348,10 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println(
 `usage: cs [-eqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
-	  [-f script.sh] [-h hosts_file] [-i identity_file] [-l login_name]
-	  [-mx] [-nc] [-nmap] [-ns] [-o output_file] [-P port] [-p path]
-	  [-ping] [-soa] [-to timeout] [-top] [-tr] [-tri] [-uname] [-vm]
-	  [command] [[user@]host] ...`)
+	  [-f script.sh] [-h hosts_file] [-i identity_file] [-ip]
+	  [-l login_name] [-mx] [-nc] [-nmap] [-ns] [-o output_file]
+	  [-P port] [-p path] [-ping] [-soa] [-to timeout] [-top]
+	  [-tr] [-tri] [-uname] [-vm] [command] [[user@]host] ...`)
 		os.Exit(1)
 	}
 
@@ -350,6 +366,7 @@ func main() {
 	hostsfile := flag.String("h", "", "Hosts file")
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
 		"Identity file")
+	ip := flag.Bool("ip", false, "IP")
 	login := flag.String("l", "", "Login name")
 	mx := flag.Bool("mx", false, "MX")
 	netcat := flag.Bool("nc", false, "Netcat")
@@ -380,13 +397,14 @@ func main() {
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs 0.7")
+		fmt.Println("cs 0.8")
 		os.Exit(1)
 	}
 
 	nocmd := 0
-	if *cname || *dd || *disku != "" || *netcat || *nmap || *ns || *mx ||
-		*png || *soa || *top1 || *tr || *tri || *uname || *up || *vm {
+	if *cname || *dd || *disku != "" || *ip || *netcat || *nmap || *ns ||
+		*mx || *png || *soa || *top1 || *tr || *tri || *uname || *up ||
+		*vm {
 		nocmd = 1
 	}
 
@@ -419,7 +437,7 @@ func main() {
 		go func(hostname string) {
 			output <- run(command, hostname, *id, *login, *path,
 				*port, *timeout, *copy, *disku, *download, dd,
-				cname, lcmd, netcat, nmap, ns, mx, one, png,
+				cname, ip, lcmd, netcat, nmap, ns, mx, one, png,
 				recursive, soa, up, verbose1, verbose2,
 				verbose3, top1, tr, tri, tty, uname, vm, ddir,
 				f)

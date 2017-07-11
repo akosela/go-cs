@@ -20,7 +20,7 @@
 .\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
-.Dd June 30, 2017
+.Dd July 10, 2017
 .Dt CS 1
 .Os
 .Sh NAME
@@ -39,6 +39,7 @@
 .Op Fl f Ar script.sh
 .Op Fl h Ar hosts_file
 .Op Fl i Ar identity_file
+.Op Fl ip
 .Op Fl l Ar login_name
 .Op Fl mx
 .Op Fl nc
@@ -68,6 +69,7 @@
 is a program for concurrently executing local or remote commands on
 multiple hosts.
 It is using OpenSSH for running remote commands.
+Its main purpose is to help automate and manage large network of hosts.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -86,10 +88,11 @@ from the remote machine.
 It will be saved in a directory named after the remote host only when
 you download from multiple servers.
 .It Fl dd
-Prints basic hardware specs for remote server (sudo(8) required).
+Prints basic hardware information for a specific host (sudo(8) and
+dmidecode(8) required).
 .It Fl du Ar path
-Prints the largest files for specified directory (sudo(8) required,
-units in M).
+Prints the list of largest files in a specific directory (sudo(8)
+required, units in M).
 .It Fl e
 Prints hosts with errors only.
 .It Fl f Ar script.sh
@@ -107,18 +110,20 @@ Selects a file from which the identity (private key) for public key
 authentication is read.
 The default is
 .Ar ~/.ssh/id_rsa .
+.It Fl ip
+Lists network interfaces.
 .It Fl l Ar login_name
 Specifies the user to log in as on the remote machine.
 This also may be specified on a per-host basis on the command line.
 .It Fl mx
 Run a local DNS query of type MX.
 .It Fl nc
-Tests specified port with netcat(1).
+Tests a specific port with nc(1).
 Default is 22/tcp.
 .It Fl nmap
 Scans host with nmap(1).
 .It Fl ns
-Runs a local DNS query of type NS.
+Run a local DNS query of type NS.
 .It Fl o Ar output_file
 Saves standard output and standard error to a file.
 .It Fl P Ar port
@@ -127,7 +132,7 @@ Port to connect to on the remote host.
 Specifies remote or local path for files in a remote copy or download
 mode.
 .It Fl ping
-Sends ICMP ECHO_REQUEST to specified host.
+Sends ICMP ECHO_REQUEST to network hosts.
 .It Fl q
 Quiet mode.
 Supresses verbose standard output from remote machines.
@@ -138,7 +143,7 @@ It follows symbolic links encountered in the tree traversal.
 .It Fl s
 Sort output.
 .It Fl soa
-Runs a local DNS query of type SOA.
+Run a local DNS query of type SOA.
 .It Fl t
 Force pseudo-tty allocation.
 .It Fl to Ar timeout
@@ -146,15 +151,15 @@ Specifies the timeout (in seconds) used when connecting to the SSH
 server.
 The default value is 4 seconds.
 .It Fl top
-Runs remote top(1) in batch mode on specified host.
+Run remote top(1) in batch mode on a specific host.
 .It Fl tr
-Runs local traceroute(8).
+Run local traceroute(8).
 .It Fl tri
-Runs local traceroute(8) using ICMP (sudo(8) required).
+Run local traceroute(8) using ICMP (local sudo(8) required).
 .It Fl uname
 Prints remote system information including OS version.
 .It Fl u
-Runs remote uptime(1) on specified host.
+Run remote uptime(1) on a specific host.
 .It Fl V
 Displays the version number and exit.
 .It Fl v
@@ -169,7 +174,7 @@ Multiple
 options increase the verbosity.
 The maximum is 3.
 .It Fl vm
-Runs remote vmstat(8) on specified host.
+Run remote vmstat(8) on a specific host.
 .It Fl 1
 One line mode, useful for sorting output later.
 .El
@@ -189,15 +194,15 @@ Run a command on multiple hosts specified in a hosts_file:
 .Pp
 .Dl $ cs -h hosts_file uptime
 .Pp
-Run a shell script on multiple hosts:
+Run a local shell script on multiple hosts:
 .Pp
 .Dl $ cs -f script.sh foo{1..100}
 .Pp
-Run a shell script with sudo(8) on multiple hosts:
+Run a local shell script with sudo(8) on multiple hosts:
 .Pp
 .Dl $ cs -t -f script.sh foo{1..100}
 .Pp
-Copy file to multiple hosts using specified remote path:
+Copy file to multiple hosts using a specific remote path:
 .Pp
 .Dl $ cs -c file -h hosts_file -p /foo/bar
 .Pp
@@ -206,9 +211,9 @@ Download file from host:~ foo to a current working directory:
 .Dl $ cs -d file foo
 .Pp
 Download recursively files from /foo/bar from multiple hosts to a
-specified local path /tmp with subdirectories named after remote hosts:
+specific local path /tmp with subdirectories named after remote hosts:
 .Pp
-.Dl $ cs -r -d /foo/bar/\e* -h hosts_file -p /tmp
+.Dl $ cs -r -d '/foo/bar/*' -h hosts_file -p /tmp
 .Pp
 Run a command on multiple hosts and sort the output:
 .Pp
@@ -218,13 +223,9 @@ Run local ping(1) on multiple hosts:
 .Pp
 .Dl $ cs -ping foo{1..100}
 .Pp
-Run an arbitrary local command on multiple hosts.
+Show name and size of all files matching the glob pattern:
 .Pp
-.Dl $ cs -cmd 'ping -c1' foo{1..100}
-.Pp
-Run remote uptime(1) on multiple hosts specified in a hosts_file:
-.Pp
-.Dl $ cs -u -h hosts_file
+.Dl $ cs -du '/var/log/mes*' foo{1..100}
 .Sh SEE ALSO
 .Xr scp 1 ,
 .Xr ssh 1 ,

@@ -1,3 +1,10 @@
+go-cs v0.8						    Jul 10, 2017
+
+  * Bugfix: fix '-ping' on OpenBSD and NetBSD.
+  * Bugfix: fix bugs in '-du, -top, -vm'.
+  * Change: separate '-ip' from '-dd'.
+  * Change: update man page.
+
 go-cs v0.7						    Jun 30, 2017
 
   * Change: Refactor some functions.
