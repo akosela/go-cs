@@ -29,7 +29,6 @@ const (
 	ssh     = "/usr/bin/ssh"
 	top     = "/usr/bin/top"
 	uptime  = "/usr/bin/uptime"
-	vmstat  = "/usr/bin/vmstat"
 	timeFmt = "02-Jan-2006 15:04:05"
 )
 
@@ -231,11 +230,15 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 				port, batchmode, strict, tout, hostname, c)
 		}
 	} else if *io {
-		c := "iostat -mx |grep Dev |awk '{OFS=\"\t\" ; print $1, " +
-			"$4, $5, $6, $7, $10, $12, $9}'; iostat -mx | " +
-			"grep -e dm- -e sd -e hd | sort -rnk10 2>/dev/null | " +
-			"head -20 | awk '{OFS=\"\t\" ; print $1, $4, $5, $6, " +
-			"$7, $10, $12, $9}'"
+		c := "if [ `uname -s` == Linux ]; then iostat -mx |grep Dev " +
+			"|awk '{OFS=\"\t\" ; print $1, $4, $5, $6, $7, $10, " +
+			"$12, $9}'; iostat -mx |grep -e dm- -e sd -e hd | " +
+			"sort -rnk10 2>/dev/null |head -20 | " +
+			"awk '{OFS=\"\t\" ; print $1, $4, $5, $6, $7, $10, " +
+			"$12, $9}'; elif [ `uname -s` == FreeBSD ]; then " +
+			"iostat -x | grep qlen ; iostat -x |grep -v device | " +
+			"sort -rnk9 2>/dev/null |head -20; " +
+			"else echo cs: your OS is not supported; fi"
 		if login != "" {
 			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
 				port, batchmode, strict, tout, hostname, c)
@@ -322,9 +325,9 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 				batchmode, strict, tout, hostname, uptime)
 		}
 	} else if *vm {
-		c := "if [ `uname -s` == Linux ]; then " + vmstat + " -SM; " +
-			"elif [ `uname -s` == FreeBSD ]; then " + vmstat +
-			" -h; else " + vmstat + "; fi"
+		c := "if [ `uname -s` == Linux ]; then vmstat -SM; " +
+			"elif [ `uname -s` == FreeBSD ]; then vmstat -h; " +
+			"else vmstat; fi"
 		if login != "" {
 			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
 				port, batchmode, strict, tout, hostname, c)
@@ -337,12 +340,13 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 			flag2 = "tt"
 		}
 		if login != "" {
-			cmd = exec.Command(ssh, flag+flag2+"i", id, "-l", login,
-				"-p", port, batchmode, strict, tout, hostname,
-				command)
+			cmd = exec.Command(ssh, "-q", flag+flag2+"i", id, "-l",
+				login, "-p", port, batchmode, strict, tout,
+				hostname, command)
 		} else {
-			cmd = exec.Command(ssh, flag+flag2+"i", id, "-p", port,
-				batchmode, strict, tout, hostname, command)
+			cmd = exec.Command(ssh, "-q", flag+flag2+"i", id, "-p",
+				port, batchmode, strict, tout, hostname,
+				command)
 		}
 	}
 
