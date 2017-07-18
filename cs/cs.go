@@ -137,9 +137,9 @@ func exist(hostname, path string) string {
 }
 
 func run(command, hostname, id, login, path, port, timeout, copy, disku,
-	download string, dd, cname, ip, lcmd, netcat, nmap, ns, mx, one, png,
-	recursive, soa, up, verbose1, verbose2, verbose3, top1, tr, tri, tty,
-	uname, vm *bool, ddir int, f *os.File) string {
+	download string, dd, cname, io, ip, lcmd, netcat, nmap, ns, mx, one,
+	png, recursive, soa, up, verbose1, verbose2, verbose3, top1, tr, tri,
+	tty, uname, vm *bool, ddir int, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
 	batchmode := "-oBatchMode=yes"
@@ -229,6 +229,19 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 		} else {
 			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-p",
 				port, batchmode, strict, tout, hostname, c)
+		}
+	} else if *io {
+		c := "iostat -mx |grep Dev |awk '{OFS=\"\t\" ; print $1, " +
+			"$4, $5, $6, $7, $10, $12, $9}'; iostat -mx | " +
+			"grep -e dm- -e sd -e hd | sort -rnk10 2>/dev/null | " +
+			"head -20 | awk '{OFS=\"\t\" ; print $1, $4, $5, $6, " +
+			"$7, $10, $12, $9}'"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, c)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
 		}
 	} else if *ip {
 		if login != "" {
@@ -348,7 +361,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println(
 `usage: cs [-eqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
-	  [-f script.sh] [-h hosts_file] [-i identity_file] [-ip]
+	  [-f script.sh] [-h hosts_file] [-i identity_file] [-io] [-ip]
 	  [-l login_name] [-mx] [-nc] [-nmap] [-ns] [-o output_file]
 	  [-P port] [-p path] [-ping] [-soa] [-to timeout] [-top]
 	  [-tr] [-tri] [-uname] [-vm] [command] [[user@]host] ...`)
@@ -366,6 +379,7 @@ func main() {
 	hostsfile := flag.String("h", "", "Hosts file")
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
 		"Identity file")
+	io := flag.Bool("io", false, "Iostat")
 	ip := flag.Bool("ip", false, "IP")
 	login := flag.String("l", "", "Login name")
 	mx := flag.Bool("mx", false, "MX")
@@ -402,9 +416,9 @@ func main() {
 	}
 
 	nocmd := 0
-	if *cname || *dd || *disku != "" || *ip || *netcat || *nmap || *ns ||
-		*mx || *png || *soa || *top1 || *tr || *tri || *uname || *up ||
-		*vm {
+	if *cname || *dd || *disku != "" || *io || *ip || *netcat || *nmap ||
+		*ns || *mx || *png || *soa || *top1 || *tr || *tri || *uname ||
+		*up || *vm {
 		nocmd = 1
 	}
 
@@ -437,8 +451,8 @@ func main() {
 		go func(hostname string) {
 			output <- run(command, hostname, *id, *login, *path,
 				*port, *timeout, *copy, *disku, *download, dd,
-				cname, ip, lcmd, netcat, nmap, ns, mx, one, png,
-				recursive, soa, up, verbose1, verbose2,
+				cname, io, ip, lcmd, netcat, nmap, ns, mx, one,
+				png, recursive, soa, up, verbose1, verbose2,
 				verbose3, top1, tr, tri, tty, uname, vm, ddir,
 				f)
 		}(hostname)

@@ -88,10 +88,10 @@ NAME
 
 SYNOPSIS
      cs [-eqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
-     [-f script.sh] [-h hosts_file] [-i identity_file] [-ip]
-     [-l login_name] [-mx] [-nc] [-nmap] [-ns] [-o output_file] [-P port]
-     [-p path] [-ping] [-soa] [-to timeout] [-top] [-tr] [-tri] [-uname]
-     [-vm] [command] [[user@]host] ...
+        [-f script.sh] [-h hosts_file] [-i identity_file] [-io] [-ip]
+        [-l login_name] [-mx] [-nc] [-nmap] [-ns] [-o output_file] [-P port]
+        [-p path] [-ping] [-soa] [-to timeout] [-top] [-tr] [-tri] [-uname]
+        [-vm] [command] [[user@]host] ...
 
 DESCRIPTION
      cs is a program for concurrently executing local or remote commands on
@@ -132,6 +132,8 @@ DESCRIPTION
      -i identity_file
              Selects a file from which the identity (private key) for public
              key authentication is read.  The default is ~/.ssh/id_rsa.
+
+     -io     Run remote iostat(1) on a specific host.
 
      -ip     Lists network interfaces.
 
