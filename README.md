@@ -24,15 +24,15 @@ $ go get github.com/akosela/go-cs/cs
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.8/go-cs-0.8-1.x86_64.rpm
-# rpm -ivh go-cs-0.8-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.x86_64.rpm
+# rpm -ivh go-cs-0.9-1.x86_64.rpm
 ```
 
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.8/go-cs-0.8.linux.tar.gz
-$ tar xvf go-cs-0.8.linux.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9.linux.tar.gz
+$ tar xvf go-cs-0.9.linux.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
@@ -71,8 +71,8 @@ Port
 #### MacOS
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.8/go-cs-0.8.darwin.tar.gz
-$ tar xvf go-cs-0.8.darwin.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9.darwin.tar.gz
+$ tar xvf go-cs-0.9.darwin.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1
@@ -87,11 +87,11 @@ NAME
      cs - concurrent ssh client
 
 SYNOPSIS
-     cs [-eqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
-        [-f script.sh] [-h hosts_file] [-i identity_file] [-io] [-ip]
-        [-l login_name] [-mx] [-nc] [-nmap] [-ns] [-o output_file] [-P port]
-        [-p path] [-ping] [-soa] [-to timeout] [-top] [-tr] [-tri] [-uname]
-        [-vm] [command] [[user@]host] ...
+     cs [-emqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
+        [-f script.sh] [-h hosts_file] [-hba] [-i identity_file] [-io] [-ip]
+        [-l login_name] [-lip] [-mx] [-nc] [-nmap] [-ns] [-o output_file]
+	[-P port] [-p path] [-ping] [-soa] [-to timeout] [-top] [-tr] [-tri]
+	[-uname] [-vm] [command] [[user@]host] ...
 
 DESCRIPTION
      cs is a program for concurrently executing local or remote commands on
@@ -129,6 +129,8 @@ DESCRIPTION
              hosts_file can include commented lines beginning with a `#' and
              only one host per line is allowed.
 
+     -hba    Lists installed HBAs and their WWPNs (Linux only).
+
      -i identity_file
              Selects a file from which the identity (private key) for public
              key authentication is read.  The default is ~/.ssh/id_rsa.
@@ -140,6 +142,10 @@ DESCRIPTION
      -l login_name
              Specifies the user to log in as on the remote machine.  This also
              may be specified on a per-host basis on the command line.
+     
+     -lip    Scans storage interconnects for new luns (Linux only).
+
+     -m      Lists mounted filesystems on a specific host.
 
      -mx     Run a local DNS query of type MX.
 
@@ -254,5 +260,5 @@ SEE ALSO
 AUTHORS
      Andy Kosela <akosela@andykosela.com>
 
-BSD                              July 10, 2017                             BSD  
+BSD                              July 19, 2017                             BSD  
 ```

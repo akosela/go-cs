@@ -24,6 +24,7 @@ const (
 	host    = "/usr/bin/host"
 	hostn	= "/bin/hostname"
 	ifconf 	= "/sbin/ifconfig"
+	lspci	= "/sbin/lspci"
 	mpath	= "/sbin/multipath"
 	nc      = "/usr/bin/nc"
 	scp     = "/usr/bin/scp"
@@ -137,9 +138,9 @@ func exist(hostname, path string) string {
 }
 
 func run(command, hostname, id, login, path, port, timeout, copy, disku,
-	download string, dd, cname, io, ip, lcmd, lip, netcat, nmap, ns, mx,
-	one, png, recursive, soa, up, verbose1, verbose2, verbose3, top1, tr,
-	tri, tty, uname, vm *bool, ddir int, f *os.File) string {
+	download string, dd, cname, hba, io, ip, lcmd, lip, netcat, nmap, ns,
+	mount, mx, one, png, recursive, soa, up, verbose1, verbose2, verbose3,
+	top1, tr, tri, tty, uname, vm *bool, ddir int, f *os.File) string {
 
 	hostname = strings.Trim(hostname, "\n")
 	batchmode := "-oBatchMode=yes"
@@ -230,6 +231,18 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-p",
 				port, batchmode, strict, tout, hostname, c)
 		}
+	} else if *hba {
+		c := "if [ `uname -s` == Linux ]; then " + lspci + " |" +
+			"grep -i fibre; grep -v zZzZ -H " +
+			"/sys/class/fc_host/host*/port_name; else echo " +
+			"'cs: your OS is not supported'; fi"
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname, c)
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, c)
+		}
 	} else if *io {
 		c := "if [ `uname -s` == Linux ]; then iostat -mx |grep Dev " +
 			"|awk '{OFS=\"\t\" ; print $1, $4, $5, $6, $7, $10, " +
@@ -239,7 +252,7 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 			"$12, $9}'; elif [ `uname -s` == FreeBSD ]; then " +
 			"iostat -x | grep qlen ; iostat -x |grep -v device | " +
 			"sort -rnk9 2>/dev/null |head -20; " +
-			"else echo cs: your OS is not supported; fi"
+			"else echo 'cs: your OS is not supported'; fi"
 		if login != "" {
 			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
 				port, batchmode, strict, tout, hostname, c)
@@ -256,14 +269,13 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 				batchmode, strict, tout, hostname, ifconf)
 		}
 	} else if *lip {
-		c := "if [ `uname -s` == Linux ]; then echo '# multipath -F'; "+
-			mpath + " -F; for e in `ls " +
+		c := "if [ `uname -s` == Linux ]; then for e in `ls " +
 			"/sys/class/fc_host/host*/issue_lip`; do echo $e; " +
-			"echo '1' >$e; sleep 1; done; for e in `ls " +
+			"echo '1' >$e; done; for e in `ls " +
 			"/sys/class/scsi_host/host*/scan`; do echo $e; echo " +
-			"'- - -' >$e; sleep 1; done; echo '# multipath -F'; " +
-			mpath + " -F; echo '# multipath'; " + mpath +
-			"; else echo cs: your OS is not supported; fi"
+			"'- - -' >$e; done; echo '# multipath -F'; " + mpath +
+			" -F; echo '# multipath'; " + mpath +
+			"; else echo 'cs: your OS is not supported'; fi"
 		command = "sudo sh <<'EOF'" + "\n" + c + "\n" + "EOF"
 		if login != "" {
 			cmd = exec.Command(ssh, "-q", flag+"tti", id, "-l",
@@ -274,14 +286,23 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 				port, batchmode, strict, tout, hostname,
 				command)
 		}
+	} else if *mount {
+		if login != "" {
+			cmd = exec.Command(ssh, flag+"i", id, "-l", login, "-p",
+				port, batchmode, strict, tout, hostname,
+				"mount")
+		} else {
+			cmd = exec.Command(ssh, flag+"i", id, "-p", port,
+				batchmode, strict, tout, hostname, "mount")
+		}
+	} else if *mx {
+		cmd = exec.Command(host, "-tmx", hostname)
 	} else if *ns {
 		cmd = exec.Command(host, hostname)
 	} else if *nmap {
 		cmd = exec.Command("nmap", hostname)
 	} else if *netcat {
 		cmd = exec.Command(nc, "-w1", hostname, port)
-	} else if *mx {
-		cmd = exec.Command(host, "-tmx", hostname)
 	} else if *png {
 		var c string
 		if runtime.GOOS == "linux" {
@@ -384,8 +405,8 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 func main() {
 	flag.Usage = func() {
 		fmt.Println(
-`usage: cs [-eqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
-	  [-f script.sh] [-h hosts_file] [-i identity_file] [-io] [-ip]
+`usage: cs [-emqrstuVv1] [-c file] [-cmd] [-cname] [-d file] [-dd] [-du path]
+	  [-f script.sh] [-h hosts_file] [-hba] [-i identity_file] [-io] [-ip]
 	  [-l login_name] [-lip] [-mx] [-nc] [-nmap] [-ns] [-o output_file]
 	  [-P port] [-p path] [-ping] [-soa] [-to timeout] [-top] [-tr]
 	  [-tri] [-uname] [-vm] [command] [[user@]host] ...`)
@@ -400,6 +421,7 @@ func main() {
 	download := flag.String("d", "", "Download")
 	error := flag.Bool("e", false, "Error")
 	file := flag.String("f", "", "Script file")
+	hba := flag.Bool("hba", false, "HBA")
 	hostsfile := flag.String("h", "", "Hosts file")
 	id := flag.String("i", string(os.Getenv("HOME")+"/.ssh/id_rsa"),
 		"Identity file")
@@ -407,6 +429,7 @@ func main() {
 	ip := flag.Bool("ip", false, "IP")
 	lip := flag.Bool("lip", false, "LIP")
 	login := flag.String("l", "", "Login name")
+	mount := flag.Bool("m", false, "Mounts")
 	mx := flag.Bool("mx", false, "MX")
 	netcat := flag.Bool("nc", false, "Netcat")
 	nmap := flag.Bool("nmap", false, "Nmap")
@@ -436,14 +459,14 @@ func main() {
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs 0.8")
+		fmt.Println("cs 0.9")
 		os.Exit(1)
 	}
 
 	nocmd := 0
-	if *cname || *dd || *disku != "" || *io || *ip || *lip || *netcat ||
-		*nmap || *ns || *mx || *png || *soa || *top1 || *tr || *tri ||
-		*uname || *up || *vm {
+	if *cname || *dd || *disku != "" || *hba || *io || *ip || *lip ||
+		*mount || *netcat || *nmap || *ns || *mx || *png || *soa ||
+		*top1 || *tr || *tri || *uname || *up || *vm {
 		nocmd = 1
 	}
 
@@ -476,10 +499,10 @@ func main() {
 		go func(hostname string) {
 			output <- run(command, hostname, *id, *login, *path,
 				*port, *timeout, *copy, *disku, *download, dd,
-				cname, io, ip, lcmd, lip, netcat, nmap, ns, mx,
-				one, png, recursive, soa, up, verbose1,
-				verbose2, verbose3, top1, tr, tri, tty, uname,
-				vm, ddir, f)
+				cname, hba, io, ip, lcmd, lip, netcat, nmap, ns,
+				mount, mx, one, png, recursive, soa, up,
+				verbose1, verbose2, verbose3, top1, tr, tri,
+				tty, uname, vm, ddir, f)
 		}(hostname)
 	}
 
