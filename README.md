@@ -5,6 +5,8 @@
 
 ## go-cs 
 
+Concurrent ssh client
+
 cs is a program for concurrently executing local or remote commands on
 multiple hosts.  It is using OpenSSH for running remote commands.  Its
 main purpose is to help automate and manage large network of hosts.  So
@@ -26,6 +28,27 @@ $ go get github.com/akosela/go-cs/cs
 ```
 $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.x86_64.rpm
 # rpm -ivh go-cs-0.9-1.x86_64.rpm
+```
+
+#### CRUX
+
+Package
+
+```
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.pkg.tar.xz
+# mv go-cs-0.9-1.pkg.tar.xz go-cs#0.9-1.pkg.tar.xz
+# pkgadd go-cs#0.9-1.pkg.tar.xz
+```
+
+Port
+
+```
+$ curl -OL https://raw.githubusercontent.com/akosela/crux-ports/master/akosela.httpup
+$ curl -OL https://raw.githubusercontent.com/akosela/crux-ports/master/akosela.pub
+# mv akosela* /etc/ports
+# ports -u akosela
+# cd /usr/ports/akosela/go-cs
+# pkgmk -i -d
 ```
 
 #### Linux
