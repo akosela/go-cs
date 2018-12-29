@@ -43,11 +43,8 @@ $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.p
 Port
 
 ```
-$ curl -OL https://raw.githubusercontent.com/akosela/crux-ports/master/akosela.httpup
-$ curl -OL https://raw.githubusercontent.com/akosela/crux-ports/master/akosela.pub
-# mv akosela* /etc/ports
-# ports -u akosela
-# cd /usr/ports/akosela/go-cs
+$ httpup sync https://raw.githubusercontent.com/akosela/crux-ports/master/#go-cs go-cs
+# cd Go-cs
 # pkgmk -i -d
 ```
 
