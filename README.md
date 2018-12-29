@@ -44,7 +44,7 @@ Port
 
 ```
 $ httpup sync https://raw.githubusercontent.com/akosela/crux-ports/master/#go-cs go-cs
-# cd Go-cs
+# cd go-cs
 # pkgmk -i -d
 ```
 
