@@ -296,7 +296,7 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 		cmd = exec.Command("sudo", "traceroute", "-I", hostname)
 	} else if *uname {
 		c := "if [ `uname -s` == Linux ]; then uname -a; " +
-			"cat /etc/redhat-release; else uname -a; fi"
+			"cat /etc/redhat-release 2>/dev/null; else uname -a; fi"
 
 		cmd = exec.Command(ssh, login, id, "-p", port, batchmode,
 			strict, tout, hostname, c)
