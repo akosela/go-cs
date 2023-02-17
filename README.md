@@ -26,15 +26,8 @@ $ go get github.com/akosela/go-cs/cs
 #### Linux (deb)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0-1.x86_64.deb
-# dpkg -i go-cs-1.0-1.x86_64.deb
-```
-
-#### Linux (rpm)
-
-```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0-1.x86_64.rpm
-# rpm -ivh go-cs-1.0-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs_1.0-1_amd64.deb
+# dpkg -i go-cs_1.0-1_amd64.deb
 ```
 
 #### CRUX
