@@ -386,7 +386,7 @@ func main() {
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs 0.9")
+		fmt.Println("cs 1.0")
 		os.Exit(1)
 	}
 

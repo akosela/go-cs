@@ -23,11 +23,18 @@ $ go get github.com/akosela/go-cs/cs
 # ln -s $GOPATH/bin/cs /usr/bin/cs
 ```
 
+#### Linux (deb)
+
+```
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0-1.x86_64.deb
+# dpkg -i go-cs-1.0-1.x86_64.deb
+```
+
 #### Linux (rpm)
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.x86_64.rpm
-# rpm -ivh go-cs-0.9-1.x86_64.rpm
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0-1.x86_64.rpm
+# rpm -ivh go-cs-1.0-1.x86_64.rpm
 ```
 
 #### CRUX
@@ -35,9 +42,9 @@ $ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.x
 Package
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9-1.pkg.tar.xz
-# mv go-cs-0.9-1.pkg.tar.xz go-cs#0.9-1.pkg.tar.xz
-# pkgadd go-cs#0.9-1.pkg.tar.xz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0-1.pkg.tar.xz
+# mv go-cs-1.0-1.pkg.tar.xz go-cs#1.0-1.pkg.tar.xz
+# pkgadd go-cs#1.0-1.pkg.tar.xz
 ```
 
 Port
@@ -51,8 +58,8 @@ $ httpup sync https://raw.githubusercontent.com/akosela/crux-ports/master/#go-cs
 #### Linux
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9.linux.tar.gz
-$ tar xvf go-cs-0.9.linux.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0.linux.tar.gz
+$ tar xvf go-cs-1.0.linux.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /usr/bin ; cp cs.1.gz /usr/share/man/man1
@@ -91,8 +98,8 @@ Port
 #### MacOS
 
 ```
-$ curl -OL https://github.com/akosela/go-cs/releases/download/v0.9/go-cs-0.9.darwin.tar.gz
-$ tar xvf go-cs-0.9.darwin.tar.gz
+$ curl -OL https://github.com/akosela/go-cs/releases/download/v1.0/go-cs-1.0.darwin.tar.gz
+$ tar xvf go-cs-1.0.darwin.tar.gz
 $ cd go-cs
 $ gzip cs.1
 # cp cs /opt/local/bin ; cp cs.1.gz /opt/local/share/man/man1

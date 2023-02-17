@@ -1,46 +1,52 @@
-go-cs v0.9						    Jul 19, 2017
+go-cs v1.0                Feb 17, 2023
+
+  * Bugfix: fix passing an identity to ssh.
+  * Bugfix: fix '-uname' on non Red Hat systems.
+  * Change: refactor some code.
+
+go-cs v0.9                Jul 19, 2017
 
   * Bugfix: improve running sudo(8).
   * Change: update man page.
   * Feature: add '-hba, -io, -lip, -m' options.
 
-go-cs v0.8						    Jul 10, 2017
+go-cs v0.8                Jul 10, 2017
 
   * Bugfix: fix '-ping' on OpenBSD and NetBSD.
   * Bugfix: fix bugs in '-du, -top, -vm'.
   * Change: separate '-ip' from '-dd'.
   * Change: update man page.
 
-go-cs v0.7						    Jun 30, 2017
+go-cs v0.7                Jun 30, 2017
 
   * Change: refactor some functions.
   * Feature: add '-cmd, -cname, -dd, -du, -e, -mx, -nc, -nmap, -ns,
     -ping, -soa, -top, -tr, -tri, -u, -uname, -vm' options.
 
-go-cs v0.6						    Oct 10, 2016
+go-cs v0.6                Oct 10, 2016
 
   * Bugfix: new '-t' option to make sudo(8) happy.
   * Change: rename '-t' to '-to'.
 
-go-cs v0.5						    May 11, 2015
+go-cs v0.5                May 11, 2015
 
   * Bugfix: clean checkArgs() function.
   * Bugfix: fix '-d' when downloading same file from multiple servers.
     Now it creates subdirectories named after remote hosts.
 
-go-cs v0.4						    Apr 23, 2015
+go-cs v0.4                Apr 23, 2015
 
   * Change: '-c', '-d', '-f' now accept arguments.
   * Feature: update and expand man page.
 
-go-cs v0.3						    Dec 30, 2014
+go-cs v0.3                Dec 30, 2014
 
   * Change: rename '-v' to '-V'.
   * Feature: add '-v' option to display verbose mode.
   * Feature: add '-1' option to display one line mode.  It is especially
     helpful for sorting output later.
 
-go-cs v0.2						   Sept 29, 2014
+go-cs v0.2               Sept 29, 2014
 
   * Bugfix: fix bug in error routine.
   * Bugfix: clean run() function.
@@ -51,6 +57,6 @@ go-cs v0.2						   Sept 29, 2014
   * Feature: add '-v' option to display version.
   * Security: securely call ssh(1) by hardcoding its path.
 
-go-cs v0.1 					    	    Sept 8, 2014
+go-cs v0.1                    Sept 8, 2014
 
   * The first public version.
