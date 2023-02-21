@@ -258,7 +258,7 @@ func run(command, hostname, id, login, path, port, timeout, copy, disku,
 		var c string
 		if runtime.GOOS == "linux" {
 			c = "ping -nc1 -s16 -W3 " + hostname + " |grep from"
-		} else if runtime.GOOS == "freebsd" {
+		} else if runtime.GOOS == "freebsd" || runtime.GOOS == "darwin" {
 			c = "ping -nc1 -s16 -W3000 " + hostname + " |grep from"
 		} else {
 			c = "ping -nc1 -s16 -w3 " + hostname + " |grep from"
@@ -386,7 +386,7 @@ func main() {
 	argv := flag.Args()
 
 	if *version {
-		fmt.Println("cs 1.0")
+		fmt.Println("cs 1.1")
 		os.Exit(1)
 	}
 
